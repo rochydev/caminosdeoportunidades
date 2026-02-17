@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ModalityType extends Model
 {
-    protected $table = 'modality_type';
+    protected $table = 'modality_types';
 
     protected $fillable = ['name'];
 

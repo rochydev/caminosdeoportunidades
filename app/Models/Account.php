@@ -34,7 +34,7 @@ class Account extends Model
 
     public function applications()
     {
-        return $this->hasMany(Application::class, 'candidate_account_id', 'id');
+        return $this->hasMany(JobApplication::class, 'candidate_account_id', 'id');
     }
 
     public function notifications()

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('job_offer', function (Blueprint $table) {
+        Schema::create('job_offers', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('company_account_id');
 
@@ -35,26 +35,26 @@ return new class extends Migration {
             $table->index(['category_id','contract_type_id','workday_type_id','modality_id'], 'idx_offer_filters');
 
             $table->foreign('company_account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('job_category')->onDelete('set null');
-            $table->foreign('contract_type_id')->references('id')->on('contract_type')->onDelete('set null');
-            $table->foreign('workday_type_id')->references('id')->on('workday_type')->onDelete('set null');
-            $table->foreign('modality_id')->references('id')->on('modality_type')->onDelete('set null');
+            $table->foreign('category_id')->references('id')->on('job_categories')->onDelete('set null');
+            $table->foreign('contract_type_id')->references('id')->on('contract_types')->onDelete('set null');
+            $table->foreign('workday_type_id')->references('id')->on('workday_types')->onDelete('set null');
+            $table->foreign('modality_id')->references('id')->on('modality_types')->onDelete('set null');
         });
 
         Schema::create('offer_tag', function (Blueprint $table) {
             $table->unsignedInteger('offer_id');
             $table->unsignedSmallInteger('tag_id');
             $table->primary(['offer_id', 'tag_id']);
-            $table->foreign('offer_id')->references('id')->on('job_offer')->onDelete('cascade');
-            $table->foreign('tag_id')->references('id')->on('tag')->onDelete('restrict');
+            $table->foreign('offer_id')->references('id')->on('job_offers')->onDelete('cascade');
+            $table->foreign('tag_id')->references('id')->on('tags')->onDelete('restrict');
         });
 
         Schema::create('offer_disability', function (Blueprint $table) {
             $table->unsignedInteger('offer_id');
             $table->unsignedSmallInteger('disability_type_id');
             $table->primary(['offer_id', 'disability_type_id']);
-            $table->foreign('offer_id')->references('id')->on('job_offer')->onDelete('cascade');
-            $table->foreign('disability_type_id')->references('id')->on('disability_type')->onDelete('restrict');
+            $table->foreign('offer_id')->references('id')->on('job_offers')->onDelete('cascade');
+            $table->foreign('disability_type_id')->references('id')->on('disability_types')->onDelete('restrict');
         });
     }
 
@@ -62,6 +62,6 @@ return new class extends Migration {
     {
         Schema::dropIfExists('offer_disability');
         Schema::dropIfExists('offer_tag');
-        Schema::dropIfExists('job_offer');
+        Schema::dropIfExists('job_offers');
     }
 };

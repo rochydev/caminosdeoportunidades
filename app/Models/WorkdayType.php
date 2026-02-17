@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkdayType extends Model
 {
-    protected $table = 'workday_type';
+    protected $table = 'workday_types';
 
     protected $fillable = ['name'];
 

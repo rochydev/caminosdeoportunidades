@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('candidate_cv', function (Blueprint $table) {
+        Schema::create('candidate_cvs', function (Blueprint $table) {
             $table->unsignedInteger('account_id')->primary();
             $table->string('title', 150)->default('Mi CV');
             $table->text('summary')->nullable();
@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
 
-        Schema::create('cv_experience', function (Blueprint $table) {
+        Schema::create('cv_experiences', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('cv_account_id');
             $table->string('company', 150);
@@ -31,10 +31,10 @@ return new class extends Migration {
             $table->text('description')->nullable();
 
             $table->index('cv_account_id', 'idx_exp_cv');
-            $table->foreign('cv_account_id')->references('account_id')->on('candidate_cv')->onDelete('cascade');
+            $table->foreign('cv_account_id')->references('account_id')->on('candidate_cvs')->onDelete('cascade');
         });
 
-        Schema::create('cv_education', function (Blueprint $table) {
+        Schema::create('cv_educations', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('cv_account_id');
             $table->string('institution', 180);
@@ -44,14 +44,14 @@ return new class extends Migration {
             $table->text('description')->nullable();
 
             $table->index('cv_account_id', 'idx_edu_cv');
-            $table->foreign('cv_account_id')->references('account_id')->on('candidate_cv')->onDelete('cascade');
+            $table->foreign('cv_account_id')->references('account_id')->on('candidate_cvs')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('cv_education');
-        Schema::dropIfExists('cv_experience');
-        Schema::dropIfExists('candidate_cv');
+        Schema::dropIfExists('cv_educations');
+        Schema::dropIfExists('cv_experiences');
+        Schema::dropIfExists('candidate_cvs');
     }
 };

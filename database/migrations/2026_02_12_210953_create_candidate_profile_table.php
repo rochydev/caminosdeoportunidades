@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('candidate_profile', function (Blueprint $table) {
+        Schema::create('candidate_profiles', function (Blueprint $table) {
             $table->unsignedInteger('account_id')->primary();
             $table->string('first_name', 80);
             $table->string('last_name', 120);
@@ -23,12 +23,12 @@ return new class extends Migration {
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('disability_type_id')->references('id')->on('disability_type')->onDelete('set null');
+            $table->foreign('disability_type_id')->references('id')->on('disability_types')->onDelete('set null');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('candidate_profile');
+        Schema::dropIfExists('candidate_profiles');
     }
 };

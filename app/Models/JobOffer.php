@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobOffer extends Model
 {
-    protected $table = 'job_offer';
+    protected $table = 'job_offers';
 
     protected $fillable = [
         'company_account_id', 'category_id', 'contract_type_id', 'workday_type_id', 'modality_id', 'title', 'description', 'requirements', 'adaptations', 'city', 'is_adapted', 'status'
@@ -49,6 +49,6 @@ class JobOffer extends Model
 
     public function applications()
     {
-        return $this->hasMany(Application::class, 'offer_id', 'id');
+        return $this->hasMany(JobApplication::class, 'offer_id', 'id');
     }
 }

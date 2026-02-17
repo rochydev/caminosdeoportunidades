@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('audit_log', function (Blueprint $table) {
+        Schema::create('audit_logs', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('actor_account_id')->nullable();
-            $table->enum('entity_type', ['OFFER','APPLICATION','COMPANY','ACCOUNT']);
+            $table->enum('entity_type', ['OFFER','JOB_APPLICATION','COMPANY','ACCOUNT']);
             $table->unsignedInteger('entity_id')->nullable();
             $table->string('action', 40);
             $table->string('details', 500)->nullable();
@@ -24,6 +24,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('audit_log');
+        Schema::dropIfExists('audit_logs');
     }
 };

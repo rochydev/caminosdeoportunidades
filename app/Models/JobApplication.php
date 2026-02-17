@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Application extends Model
+class JobApplication extends Model
 {
-    protected $table = 'application';
+    protected $table = 'job_applications';
 
     protected $fillable = [
-        'offer_id', 'candidate_account_id', 'status', 'company_notes'
+        'offer_id',
+        'candidate_account_id',
+        'status',
+        'company_notes',
     ];
 
     public function offer()

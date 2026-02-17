@@ -7,32 +7,32 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('disability_type', function (Blueprint $table) {
+        Schema::create('disability_types', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 120)->unique();
         });
 
-        Schema::create('job_category', function (Blueprint $table) {
+        Schema::create('job_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 120)->unique();
         });
 
-        Schema::create('tag', function (Blueprint $table) {
+        Schema::create('tags', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 80)->unique();
         });
 
-        Schema::create('contract_type', function (Blueprint $table) {
+        Schema::create('contract_types', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 120)->unique();
         });
 
-        Schema::create('workday_type', function (Blueprint $table) {
+        Schema::create('workday_types', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 120)->unique();
         });
 
-        Schema::create('modality_type', function (Blueprint $table) {
+        Schema::create('modality_types', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 120)->unique();
         });
@@ -40,11 +40,11 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('modality_type');
-        Schema::dropIfExists('workday_type');
-        Schema::dropIfExists('contract_type');
-        Schema::dropIfExists('tag');
-        Schema::dropIfExists('job_category');
-        Schema::dropIfExists('disability_type');
+        Schema::dropIfExists('modality_types');
+        Schema::dropIfExists('workday_types');
+        Schema::dropIfExists('contract_types');
+        Schema::dropIfExists('tags');
+        Schema::dropIfExists('job_categories');
+        Schema::dropIfExists('disability_types');
     }
 };

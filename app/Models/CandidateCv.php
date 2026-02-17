@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CandidateCv extends Model
 {
-    protected $table = 'candidate_cv';
+    protected $table = 'candidate_cvs';
 
     protected $primaryKey = 'account_id';
 

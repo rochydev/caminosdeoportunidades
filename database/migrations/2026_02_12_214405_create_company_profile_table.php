@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('company_profile', function (Blueprint $table) {
+        Schema::create('company_profiles', function (Blueprint $table) {
             $table->unsignedInteger('account_id')->primary();
             $table->string('company_name', 255);
             $table->text('description')->nullable();
@@ -32,6 +32,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('company_profile');
+        Schema::dropIfExists('company_profiles');
     }
 };

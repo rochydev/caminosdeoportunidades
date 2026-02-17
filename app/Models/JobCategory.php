@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobCategory extends Model
 {
-    protected $table = 'job_category';
+    protected $table = 'job_categories';
 
     protected $fillable = ['name'];
 

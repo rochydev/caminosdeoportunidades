@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuditLog extends Model
 {
-    protected $table = 'audit_log';
+    protected $table = 'audit_logs';
 
     protected $fillable = ['actor_account_id', 'entity_type', 'entity_id', 'action', 'details'];
 

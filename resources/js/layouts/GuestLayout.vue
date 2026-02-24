@@ -4,9 +4,11 @@
         <main class="flex-grow">
             <router-view></router-view>
         </main>
+        <Footer/>
     </div>
 </template>
 <script setup>
-import Navbar from './LandingNavbar.vue'
+import Navbar from './Navbar.vue'
+import Footer from './Footer.vue'
 
 </script>

@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('job_applications', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('offer_id');
-            $table->unsignedInteger('candidate_account_id');
+            $table->unsignedBigInteger('candidate_user_id');
 
             $table->enum('status', ['SENT','IN_REVIEW','ACCEPTED','REJECTED','CANCELED'])->default('SENT');
             $table->text('company_notes')->nullable();
@@ -18,13 +18,13 @@ return new class extends Migration {
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->unique(['offer_id','candidate_account_id'], 'uk_offer_candidate');
+            $table->unique(['offer_id','candidate_user_id'], 'uk_offer_candidate');
             $table->index('offer_id', 'idx_app_offer');
-            $table->index('candidate_account_id', 'idx_app_candidate');
+            $table->index('candidate_user_id', 'idx_app_candidate');
             $table->index('status', 'idx_app_status');
 
             $table->foreign('offer_id')->references('id')->on('job_offers')->onDelete('cascade');
-            $table->foreign('candidate_account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('candidate_user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

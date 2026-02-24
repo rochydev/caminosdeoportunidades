@@ -3,13 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
 class Account extends Model
 {
+    use HasApiTokens;
+
     protected $table = 'accounts';
 
     protected $fillable = [
         'role', 'email', 'password_hash', 'status'
+    ];
+
+    protected $hidden = [
+        'password_hash',
     ];
 
     public function candidateProfile()

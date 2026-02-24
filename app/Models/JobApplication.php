@@ -10,7 +10,7 @@ class JobApplication extends Model
 
     protected $fillable = [
         'offer_id',
-        'candidate_account_id',
+        'candidate_user_id',
         'status',
         'company_notes',
     ];
@@ -22,6 +22,6 @@ class JobApplication extends Model
 
     public function candidate()
     {
-        return $this->belongsTo(Account::class, 'candidate_account_id', 'id');
+        return $this->belongsTo(User::class, 'candidate_user_id', 'id');
     }
 }

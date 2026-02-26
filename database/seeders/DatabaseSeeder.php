@@ -24,9 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleHasPermissionsTableSeeder::class);
         $this->call(ModelHasRolesTableSeeder::class);
         $this->call(ModelHasPermissionsTableSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(AccountSeeder::class);
         $this->call(CandidateProfileSeeder::class);
+        $this->call(CompanyProfileSeeder::class);
         $this->call(JobOfferSeeder::class);
         $this->call(JobApplicationSeeder::class);
 

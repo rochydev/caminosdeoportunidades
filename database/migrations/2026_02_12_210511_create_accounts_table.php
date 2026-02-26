@@ -7,19 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('accounts', function (Blueprint $table) {
-            $table->increments('id');
-            $table->enum('role', ['CANDIDATE', 'COMPANY', 'ADMIN']);
-            $table->string('email')->unique();
-            $table->string('password_hash');
-            $table->enum('status', ['ACTIVE', 'BLOCKED'])->default('ACTIVE');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['CANDIDATE', 'COMPANY', 'ADMIN'])->nullable()->after('password');
+            $table->enum('status', ['ACTIVE', 'BLOCKED'])->default('ACTIVE')->after('role');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('accounts');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['role', 'status']);
+        });
     }
 };

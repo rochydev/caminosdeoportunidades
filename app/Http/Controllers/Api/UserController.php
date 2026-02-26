@@ -1,125 +1,142 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use Exception;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return AnonymousResourceCollection
-     */
-
-    public function index()
+    public function index(Request $request)
     {
-        $orderColumn = request('order_column', 'created_at');
-        if (!in_array($orderColumn, ['id', 'name', 'created_at'])) {
+        $query = User::with(['candidateProfile', 'companyProfile', 'roles']);
+
+        if ($request->has('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orderColumn = $request->input('order_column', 'created_at');
+        if (!in_array($orderColumn, ['id', 'name', 'created_at', 'email'])) {
             $orderColumn = 'created_at';
         }
-        $orderDirection = request('order_direction', 'desc');
+
+        $orderDirection = $request->input('order_direction', $request->input('sort', 'desc'));
         if (!in_array($orderDirection, ['asc', 'desc'])) {
             $orderDirection = 'desc';
         }
-        $users = User::
-        when(request('search_id'), function ($query) {
-            $query->where('id', request('search_id'));
-        })
-            ->when(request('search_title'), function ($query) {
-                $query->where('name', 'like', '%'.request('search_title').'%');
-            })
-            ->when(request('search_global'), function ($query) {
-                $query->where(function($q) {
-                    $q->where('id', request('search_global'))
-                        ->orWhere('name', 'like', '%'.request('search_global').'%');
 
-                });
-            })
-            ->orderBy($orderColumn, $orderDirection)
-            ->paginate(500);
-
-        return UserResource::collection($users);
-    }
-
-    // userswithtasks removed
-
-    // usersfromgroup removed
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return UserResource
-     */
-    public function store(StoreUserRequest $request)
-    {
-        $role = Role::find($request->role_id);
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->surname1 = $request->surname1;
-        $user->surname2 = $request->surname2;
-
-        $user->password = Hash::make($request->password);
-
-        if ($user->save()) {
-            if ($role) {
-                $user->assignRole($role);
-            }
-            return new UserResource($user);
+        if ($request->has('search_id')) {
+            $query->where('id', $request->search_id);
         }
+
+        if ($request->has('search_title')) {
+            $query->where('name', 'like', '%'.$request->search_title.'%');
+        }
+
+        if ($request->has('search_global')) {
+            $global = $request->search_global;
+            $query->where(function ($q) use ($global) {
+                $q->where('id', $global)
+                    ->orWhere('name', 'like', '%'.$global.'%')
+                    ->orWhere('email', 'like', '%'.$global.'%');
+            });
+        }
+
+        $users = $query->orderBy($orderColumn, $orderDirection)
+            ->paginate((int) $request->input('per_page', 15));
+
+        $users->getCollection()->transform(function ($user) {
+            return $user->makeHidden(['password']);
+        });
+
+        return response()->json($users);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return UserResource
-     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'surname1' => ['sometimes', 'string', 'max:255'],
+            'surname2' => ['nullable', 'string', 'max:255'],
+            'role' => ['sometimes', Rule::in(['CANDIDATE', 'COMPANY', 'ADMIN'])],
+            'status' => ['sometimes', Rule::in(['ACTIVE', 'BLOCKED'])],
+            'role_id' => ['nullable', 'integer', 'exists:roles,id'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $role = !empty($data['role_id']) ? Role::find($data['role_id']) : null;
+
+        $user = User::create([
+            'name' => $data['name'] ?? strstr($data['email'], '@', true),
+            'surname1' => $data['surname1'] ?? '-',
+            'surname2' => $data['surname2'] ?? null,
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'] ?? null,
+            'status' => $data['status'] ?? 'ACTIVE',
+        ]);
+
+        if ($role) {
+            $user->assignRole($role);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user->load('roles')->makeHidden(['password'])
+        ], 201);
+    }
+
     public function show(User $user)
     {
-        $user->load('roles');
-        return new UserResource($user);
+        $user->load(['candidateProfile', 'companyProfile', 'roles']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $user->makeHidden(['password'])
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param UpdateUserRequest $request
-     * @param User $user
-     * @return UserResource
-     */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
-        $role = Role::find($request->role_id);
+        $data = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'surname1' => ['sometimes', 'string', 'max:255'],
+            'surname2' => ['nullable', 'string', 'max:255'],
+            'role' => ['sometimes', Rule::in(['CANDIDATE', 'COMPANY', 'ADMIN'])],
+            'status' => ['sometimes', Rule::in(['ACTIVE', 'BLOCKED'])],
+            'role_id' => ['nullable', 'integer', 'exists:roles,id'],
+            'email' => ['sometimes', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8'],
+        ]);
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->surname1 = $request->surname1;
-        $user->surname2 = $request->surname2;
+        $role = !empty($data['role_id']) ? Role::find($data['role_id']) : null;
 
-        if(!empty($request->password)) {
-            $user->password = Hash::make($request->password) ?? $user->password;
+        $user->fill(collect($data)->except(['password', 'role_id'])->toArray());
+
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
         }
-        if ($user->save()) {
-            if ($role) {
-                $user->syncRoles($role);
-            }
 
-            return new UserResource($user);
+        $user->save();
+
+        if ($role) {
+            $user->syncRoles($role);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $user->load('roles')->makeHidden(['password'])
+        ]);
     }
 
 
@@ -149,6 +166,4 @@ class UserController extends Controller
 
         return response()->noContent();
     }
-
-
 }

@@ -8,10 +8,10 @@ class AuditLog extends Model
 {
     protected $table = 'audit_logs';
 
-    protected $fillable = ['actor_account_id', 'entity_type', 'entity_id', 'action', 'details'];
+    protected $fillable = ['actor_user_id', 'entity_type', 'entity_id', 'action', 'details'];
 
     public function actor()
     {
-        return $this->belongsTo(Account::class, 'actor_account_id', 'id');
+        return $this->belongsTo(User::class, 'actor_user_id', 'id');
     }
 }

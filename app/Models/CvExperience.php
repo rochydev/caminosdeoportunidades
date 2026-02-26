@@ -8,10 +8,10 @@ class CvExperience extends Model
 {
     protected $table = 'cv_experiences';
 
-    protected $fillable = ['cv_account_id', 'company', 'position', 'start_date', 'end_date', 'description'];
+    protected $fillable = ['cv_user_id', 'company', 'position', 'start_date', 'end_date', 'description'];
 
     public function cv()
     {
-        return $this->belongsTo(CandidateCv::class, 'cv_account_id', 'account_id');
+        return $this->belongsTo(CandidateCv::class, 'cv_user_id', 'user_id');
     }
 }

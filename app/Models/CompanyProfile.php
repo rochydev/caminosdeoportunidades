@@ -8,16 +8,16 @@ class CompanyProfile extends Model
 {
     protected $table = 'company_profiles';
 
-    protected $primaryKey = 'account_id';
+    protected $primaryKey = 'user_id';
 
     public $incrementing = false;
 
     protected $fillable = [
-        'account_id', 'company_name', 'description', 'sector', 'city', 'contact_phone', 'website', 'logo_url', 'offers_adapted_positions', 'offers_remote_work', 'offers_reasonable_adjustments', 'validation_status'
+        'user_id', 'company_name', 'description', 'sector', 'city', 'contact_phone', 'website', 'logo_url', 'offers_adapted_positions', 'offers_remote_work', 'offers_reasonable_adjustments', 'validation_status'
     ];
 
-    public function account()
+    public function user()
     {
-        return $this->belongsTo(Account::class, 'account_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

@@ -1,12 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\JobApplicationController;
 use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\PermissionController;
-use App\Http\Controllers\Api\UserAuthController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RoleController;
@@ -14,12 +13,12 @@ use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('login', [UserAuthController::class, 'login']);
+Route::post('login', [AuthenticatedSessionController::class, 'login']);
 
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
 
-    Route::post('logout', [UserAuthController::class, 'logout']);
+    Route::post('logout', [AuthenticatedSessionController::class, 'logout']);
 
     Route::apiResource('users', UserController::class);
     Route::post('users/updateimg', [UserController::class,'updateimg']);
@@ -38,7 +37,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
 
     /* Rutas nuevas - Se tienen que modificar y ponerle más restricciones */
-    Route::apiResource('accounts', AccountController::class);
     Route::apiResource('candidate-profiles', CandidateProfileController::class);
     Route::apiResource('job-applications', JobApplicationController::class);
     Route::apiResource('job-offers', JobOfferController::class);

@@ -16,7 +16,7 @@ class JobApplicationSeeder extends Seeder
             ['id' => 1],
             [
                 'offer_id' => 1,
-                'candidate_account_id' => 1,
+                'candidate_user_id' => 1,
                 'status' => 'SENT',
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -27,7 +27,7 @@ class JobApplicationSeeder extends Seeder
             ['id' => 2],
             [
                 'offer_id' => 2,
-                'candidate_account_id' => 2,
+                'candidate_user_id' => 2,
                 'status' => 'IN_REVIEW',
                 'created_at' => $now,
                 'updated_at' => $now,

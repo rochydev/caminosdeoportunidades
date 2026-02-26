@@ -28,7 +28,9 @@ class User extends Authenticatable implements HasMedia
         'email',
         'password',
         'surname1',
-        'surname2'
+        'surname2',
+        'role',
+        'status'
     ];
 
     /**
@@ -49,6 +51,41 @@ class User extends Authenticatable implements HasMedia
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function candidateProfile()
+    {
+        return $this->hasOne(CandidateProfile::class, 'user_id', 'id');
+    }
+
+    public function candidateCv()
+    {
+        return $this->hasOne(CandidateCv::class, 'user_id', 'id');
+    }
+
+    public function companyProfile()
+    {
+        return $this->hasOne(CompanyProfile::class, 'user_id', 'id');
+    }
+
+    public function jobOffers()
+    {
+        return $this->hasMany(JobOffer::class, 'company_user_id', 'id');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class, 'candidate_user_id', 'id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id', 'id');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'actor_user_id', 'id');
+    }
 
     public function sendPasswordResetNotification($token)
     {

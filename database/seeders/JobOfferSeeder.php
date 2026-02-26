@@ -15,7 +15,7 @@ class JobOfferSeeder extends Seeder
         DB::table('job_offers')->updateOrInsert(
             ['id' => 1],
             [
-                'company_account_id' => 3,
+                'company_user_id' => 3,
                 'title' => 'Desarrollador PHP',
                 'description' => 'Oferta para desarrollador PHP con conocimientos de Laravel.',
                 'status' => 'PUBLISHED',
@@ -28,7 +28,7 @@ class JobOfferSeeder extends Seeder
         DB::table('job_offers')->updateOrInsert(
             ['id' => 2],
             [
-                'company_account_id' => 3,
+                'company_user_id' => 3,
                 'title' => 'Frontend React',
                 'description' => 'Oferta para desarrollador Frontend con React y TypeScript.',
                 'status' => 'PUBLISHED',

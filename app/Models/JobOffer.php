@@ -9,12 +9,23 @@ class JobOffer extends Model
     protected $table = 'job_offer';
 
     protected $fillable = [
-        'company_account_id', 'category_id', 'contract_type_id', 'workday_type_id', 'modality_id', 'title', 'description', 'requirements', 'adaptations', 'city', 'is_adapted', 'status'
+        'company_user_id',
+        'category_id',
+        'contract_type_id',
+        'workday_type_id',
+        'modality_id',
+        'title',
+        'description',
+        'requirements',
+        'adaptations',
+        'city',
+        'is_adapted',
+        'status'
     ];
 
     public function company()
     {
-        return $this->belongsTo(Account::class, 'company_account_id', 'id');
+        return $this->belongsTo(User::class, 'company_user_id', 'id');
     }
 
     public function category()

@@ -9,7 +9,10 @@ class Application extends Model
     protected $table = 'application';
 
     protected $fillable = [
-        'offer_id', 'candidate_account_id', 'status', 'company_notes'
+        'offer_id',
+        'candidate_user_id',
+        'status',
+        'company_notes'
     ];
 
     public function offer()
@@ -19,6 +22,6 @@ class Application extends Model
 
     public function candidate()
     {
-        return $this->belongsTo(Account::class, 'candidate_account_id', 'id');
+        return $this->belongsTo(User::class, 'candidate_user_id', 'id');
     }
 }

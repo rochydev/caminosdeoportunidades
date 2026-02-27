@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('job_offer', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('company_account_id');
+            $table->unsignedBigInteger('company_user_id');
 
             $table->unsignedSmallInteger('category_id')->nullable();
             $table->unsignedSmallInteger('contract_type_id')->nullable();
@@ -24,17 +24,17 @@ return new class extends Migration {
             $table->string('city', 120)->nullable();
             $table->boolean('is_adapted')->default(false);
 
-            $table->enum('status', ['DRAFT','PUBLISHED','CLOSED'])->default('DRAFT');
+            $table->enum('status', ['DRAFT', 'PUBLISHED', 'CLOSED'])->default('DRAFT');
 
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->index('company_account_id', 'idx_offer_company');
+            $table->index('company_user_id', 'idx_offer_company');
             $table->index('status', 'idx_offer_status');
             $table->index('city', 'idx_offer_city');
-            $table->index(['category_id','contract_type_id','workday_type_id','modality_id'], 'idx_offer_filters');
+            $table->index(['category_id', 'contract_type_id', 'workday_type_id', 'modality_id'], 'idx_offer_filters');
 
-            $table->foreign('company_account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('company_user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('job_category')->onDelete('set null');
             $table->foreign('contract_type_id')->references('id')->on('contract_type')->onDelete('set null');
             $table->foreign('workday_type_id')->references('id')->on('workday_type')->onDelete('set null');

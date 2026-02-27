@@ -8,26 +8,31 @@ class CandidateCv extends Model
 {
     protected $table = 'candidate_cv';
 
-    protected $primaryKey = 'account_id';
+    protected $primaryKey = 'user_id';
 
     public $incrementing = false;
 
     protected $fillable = [
-        'account_id', 'title', 'summary', 'skills', 'languages', 'availability'
+        'user_id',
+        'title',
+        'summary',
+        'skills',
+        'languages',
+        'availability'
     ];
 
-    public function account()
+    public function user()
     {
-        return $this->belongsTo(Account::class, 'account_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function experiences()
     {
-        return $this->hasMany(CvExperience::class, 'cv_account_id', 'account_id');
+        return $this->hasMany(CvExperience::class, 'cv_user_id', 'user_id');
     }
 
     public function educations()
     {
-        return $this->hasMany(CvEducation::class, 'cv_account_id', 'account_id');
+        return $this->hasMany(CvEducation::class, 'cv_user_id', 'user_id');
     }
 }

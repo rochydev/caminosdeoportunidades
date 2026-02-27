@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('company_profile', function (Blueprint $table) {
-            $table->unsignedInteger('account_id')->primary();
+            $table->unsignedBigInteger('user_id')->primary();
             $table->string('company_name', 255);
             $table->text('description')->nullable();
             $table->string('sector', 180)->nullable();
@@ -21,12 +21,12 @@ return new class extends Migration {
             $table->boolean('offers_remote_work')->default(false);
             $table->boolean('offers_reasonable_adjustments')->default(false);
 
-            $table->enum('validation_status', ['PENDING','VALIDATED','REJECTED','BLOCKED'])->default('PENDING');
+            $table->enum('validation_status', ['PENDING', 'VALIDATED', 'REJECTED', 'BLOCKED'])->default('PENDING');
 
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

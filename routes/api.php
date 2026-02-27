@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\JobApplicationController;
+use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\PermissionController;
 
 use App\Http\Controllers\Api\ProfileController;
@@ -10,10 +13,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::group(['middleware' => 'auth:sanctum'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('users', UserController::class);
-    Route::post('users/updateimg', [UserController::class,'updateimg']);
+    Route::post('users/updateimg', [UserController::class, 'updateimg']);
 
 
     Route::apiResource('categories', CategoryController::class);
@@ -23,12 +26,16 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('role-permissions/{id}', [PermissionController::class, 'getRolePermissions']);
     Route::put('/role-permissions', [PermissionController::class, 'updateRolePermissions']);
     Route::apiResource('permissions', PermissionController::class);
-    
+
     Route::get('/user', [ProfileController::class, 'user']);
     Route::get('/user/signin', [ProfileController::class, 'user']);
     Route::put('/user', [ProfileController::class, 'update']);
 
-    Route::get('abilities', function(Request $request) {
+    Route::apiResource('candidate-profiles', CandidateProfileController::class);
+    Route::apiResource('job-offers', JobOfferController::class);
+    Route::apiResource('job-applications', JobApplicationController::class);
+
+    Route::get('abilities', function (Request $request) {
         return $request->user()->roles()->with('permissions')
             ->get()
             ->pluck('permissions')
@@ -41,4 +48,5 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 });
 
 Route::get('category-list', [CategoryController::class, 'getList']);
+
 

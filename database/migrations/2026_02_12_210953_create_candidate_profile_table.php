@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('candidate_profile', function (Blueprint $table) {
-            $table->unsignedInteger('account_id')->primary();
+            $table->unsignedBigInteger('user_id')->primary();
             $table->string('first_name', 80);
             $table->string('last_name', 120);
             $table->string('phone', 30)->nullable();
@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('disability_type_id')->references('id')->on('disability_type')->onDelete('set null');
         });
     }

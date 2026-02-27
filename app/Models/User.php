@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\UserResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,35 +16,21 @@ class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-
     protected $fillable = [
         'name',
         'email',
         'password',
         'surname1',
-        'surname2'
+        'surname2',
+        'role',
+        'status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -55,8 +40,40 @@ class User extends Authenticatable implements HasMedia
         $this->notify(new UserResetPasswordNotification($token));
     }
 
-    
+    public function candidateProfile()
+    {
+        return $this->hasOne(CandidateProfile::class, 'user_id', 'id');
+    }
 
+    public function candidateCv()
+    {
+        return $this->hasOne(CandidateCv::class, 'user_id', 'id');
+    }
+
+    public function companyProfile()
+    {
+        return $this->hasOne(CompanyProfile::class, 'user_id', 'id');
+    }
+
+    public function jobOffers()
+    {
+        return $this->hasMany(JobOffer::class, 'company_user_id', 'id');
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'candidate_user_id', 'id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id', 'id');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'actor_user_id', 'id');
+    }
 
     public function registerMediaCollections(): void
     {

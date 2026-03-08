@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class UsersTableSeeder extends Seeder
 {
@@ -10,7 +11,7 @@ class UsersTableSeeder extends Seeder
     {
         \DB::table('users')->delete();
 
-        \DB::table('users')->insert([
+        $usersData = [
             [
                 'id' => 1,
                 'name' => 'Admin',
@@ -20,8 +21,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'admin@demo.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'ADMIN',
                 'status' => 'ACTIVE',
+                'role_name' => 'admin',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -35,8 +36,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'pol@demo.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'CANDIDATE',
                 'status' => 'ACTIVE',
+                'role_name' => 'candidate',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -50,8 +51,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'roger@demo.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'CANDIDATE',
                 'status' => 'ACTIVE',
+                'role_name' => 'candidate',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -65,8 +66,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'arnau@demo.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'CANDIDATE',
                 'status' => 'ACTIVE',
+                'role_name' => 'candidate',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -80,8 +81,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'pau@demo.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'CANDIDATE',
                 'status' => 'ACTIVE',
+                'role_name' => 'candidate',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -95,8 +96,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'rrhh@mercadona.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'COMPANY',
                 'status' => 'ACTIVE',
+                'role_name' => 'company',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -110,8 +111,8 @@ class UsersTableSeeder extends Seeder
                 'email' => 'rrhh@inditex.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'COMPANY',
                 'status' => 'ACTIVE',
+                'role_name' => 'company',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -125,12 +126,20 @@ class UsersTableSeeder extends Seeder
                 'email' => 'rrhh@telefonica.com',
                 'email_verified_at' => null,
                 'password' => bcrypt('12345678'),
-                'role' => 'COMPANY',
                 'status' => 'ACTIVE',
+                'role_name' => 'company',
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-        ]);
+        ];
+
+        foreach ($usersData as $userData) {
+            $roleName = $userData['role_name'];
+            unset($userData['role_name']);
+
+            $user = User::create($userData);
+            $user->assignRole($roleName);
+        }
     }
 }

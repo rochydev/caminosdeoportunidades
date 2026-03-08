@@ -16,7 +16,6 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['CANDIDATE', 'COMPANY', 'ADMIN'])->default('CANDIDATE');
             $table->enum('status', ['ACTIVE', 'BLOCKED'])->default('ACTIVE');
             $table->rememberToken();
             $table->timestamps();

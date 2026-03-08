@@ -84,7 +84,7 @@ class AuthenticatedSessionController extends Controller
             'surname2' => $request['surname2'],
         ]);
 
-        $role = Role::where('name', 'user')->first();
+        $role = Role::where('name', 'candidate')->first();
         if ($role) {
             $user->assignRole($role);
         }

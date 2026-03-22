@@ -4,12 +4,12 @@
             
             <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                    Accede como candidato/a
+                    Accede como empresa
                 </h2>
 
                 <form @submit.prevent="submitLogin" class="space-y-5">
                     <div class="flex flex-col gap-2">
-                        <label for="email" class="font-medium text-gray-700">Email</label>
+                        <label for="email" class="font-medium text-gray-700">Email corporativo</label>
                         <InputText
                             id="email"
                             type="email"
@@ -67,15 +67,15 @@
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
                         />
                         <label for="remember" class="text-sm text-gray-700 cursor-pointer">
-                            Mantener mi sesión abierta. <span class="text-blue-600 hover:underline">Más info</span>
+                            Mantener mi sesión abierta.
                         </label>
                     </div>
 
                     <div class="border-t border-gray-200 my-6"></div>
 
                     <div class="text-center">
-                        <router-link :to="{ name: 'auth.login.company' }" class="text-sm text-gray-600">
-                            ¿Eres una empresa? <span class="text-blue-600 font-bold hover:underline">Accede aquí</span>
+                        <router-link :to="{ name: 'auth.login' }" class="text-sm text-gray-600">
+                            ¿Eres un candidato/a? <span class="text-blue-600 font-bold hover:underline">Accede aquí</span>
                         </router-link>
                     </div>
                 </form>
@@ -84,46 +84,46 @@
             <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                        ¿Eres nuevo/a?
+                        ¿Aún no te has unido?
                     </h2>
 
                     <div class="space-y-6">
                         <div class="flex gap-4">
                             <div class="mt-1">
-                                <i class="pi pi-file text-xl text-gray-400"></i>
+                                <i class="pi pi-building text-xl text-gray-400"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900">Crea tu CV</h3>
-                                <p class="text-sm text-gray-600">Muestra a las empresas todo tu talento</p>
+                                <h3 class="font-bold text-gray-900">Perfiles de empresa atractivos</h3>
+                                <p class="text-sm text-gray-600">Destaca los valores y beneficios de tu organización</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4">
                             <div class="mt-1">
-                                <i class="pi pi-check-circle text-xl text-gray-400"></i>
+                                <i class="pi pi-megaphone text-xl text-gray-400"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900">Inscríbete en las ofertas que te gustan</h3>
-                                <p class="text-sm text-gray-600">Y sigue tus candidaturas</p>
+                                <h3 class="font-bold text-gray-900">Publica ofertas ilimitadas</h3>
+                                <p class="text-sm text-gray-600">Llega a nuestro gran volumen de candidatos con talento</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4">
                             <div class="mt-1">
-                                <i class="pi pi-clock text-xl text-gray-400"></i>
+                                <i class="pi pi-users text-xl text-gray-400"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900">Mantén actualizado tu CV</h3>
-                                <p class="text-sm text-gray-600">Y dobla las posibilidades de ser contactado por la empresa que quieres</p>
+                                <h3 class="font-bold text-gray-900">Filtra candidatos rápido</h3>
+                                <p class="text-sm text-gray-600">Encuentra a la persona ideal con nuestras herramientas de selección</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <router-link :to="{ name: 'auth.register' }">
+                    <router-link :to="{ name: 'auth.register.company' }">
                         <Button
-                            label="Regístrate"
+                            label="Dar de alta como Empresa"
                             class="w-full font-bold py-3 rounded-full transition-colors register-button"
                         />
                     </router-link>

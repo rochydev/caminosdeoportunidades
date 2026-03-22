@@ -18,6 +18,9 @@ async function requireLogin(to, from, next) {
 const hasAdmin = (roles = []) =>
     roles.some((role) => role?.name?.toLowerCase().includes('admin'));
 
+const hasCompany = (roles = []) =>
+    roles.some((role) => role?.name?.toLowerCase().includes('company'));
+
 async function guest(to, from, next) {
     const auth = authStore()
     let isLogin = !!auth.authenticated;
@@ -45,6 +48,22 @@ async function requireAdmin(to, from, next) {
     }
 }
 
+async function requireCompany(to, from, next) {
+    const auth = authStore();
+    let isLogin = !!auth.authenticated;
+    let user = auth.user;
+
+    if (isLogin) {
+        if (hasCompany(user.roles)) {
+            next()
+        } else {
+            next('/app')
+        }
+    } else {
+        next('/empresa/login')
+    }
+}
+
 export default [
     {
         path: '/',
@@ -66,6 +85,18 @@ export default [
                 path: 'register',
                 name: 'auth.register',
                 component: () => import('../views/auth/register/index.vue'),
+                beforeEnter: guest,
+            },
+            {
+                path: 'empresa/login',
+                name: 'auth.login.company',
+                component: () => import('../views/auth/login/LoginCompany.vue'),
+                beforeEnter: guest,
+            },
+            {
+                path: 'empresa/registro',
+                name: 'auth.register.company',
+                component: () => import('../views/auth/register/RegisterCompany.vue'),
                 beforeEnter: guest,
             },
             {
@@ -99,6 +130,23 @@ export default [
                 },
             },
 
+        ]
+    },
+
+    {
+        path: '/empresa/dashboard',
+        component: AuthenticatedUserLayout,
+        beforeEnter: requireCompany,
+        meta: { breadCrumb: 'Dashboard Empresa' },
+        children: [
+            {
+                name: 'company.dashboard',
+                path: '',
+                component: () => import('../views/company/index.vue'),
+                meta: {
+                    breadCrumb: 'Inicio',
+                },
+            },
         ]
     },
 

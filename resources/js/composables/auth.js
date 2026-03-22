@@ -40,7 +40,18 @@ export default function useAuth() {
         surname2: '',
         email: '',
         password: '',
-        password_confirmation: ''
+        password_confirmation: '',
+        role_type: 'candidate'
+    })
+
+    const registerCompanyForm = reactive({
+        name: '',
+        surname1: '',
+        company_name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+        role_type: 'company'
     })
 
     const submitLogin = async () => {
@@ -60,7 +71,13 @@ export default function useAuth() {
                     showConfirmButton: false,
                     timer: 1500
                 })
-                await router.push({ name: 'admin.index' })
+                if (auth.is('company')) {
+                    await router.push({ name: 'company.dashboard' })
+                } else if (auth.is('candidate')) {
+                    await router.push({ name: 'app.profile' })
+                } else {
+                    await router.push({ name: 'admin.index' })
+                }
             })
             .catch(error => {
                 if (error.response?.data) {
@@ -87,6 +104,30 @@ export default function useAuth() {
                     timer: 1500
                 })
                 await router.push({ name: 'auth.login' })
+            })
+            .catch(error => {
+                if (error.response?.data) {
+                    validationErrors.value = error.response.data.errors
+                }
+            })
+            .finally(() => processing.value = false)
+    }
+
+    const submitCompanyRegister = async () => {
+        if (processing.value) return
+
+        processing.value = true
+        validationErrors.value = {}
+
+        await axios.post('/register', registerCompanyForm)
+            .then(async response => {
+                swal({
+                    icon: 'success',
+                    title: 'Empresa registrada correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                await router.push({ name: 'auth.login.company' })
             })
             .catch(error => {
                 if (error.response?.data) {
@@ -211,12 +252,14 @@ export default function useAuth() {
     return {
         loginForm,
         registerForm,
+        registerCompanyForm,
         forgotForm,
         resetForm,
         validationErrors,
         processing,
         submitLogin,
         submitRegister,
+        submitCompanyRegister,
         submitForgotPassword,
         submitResetPassword,
         user,

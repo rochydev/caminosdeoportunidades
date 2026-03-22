@@ -34,9 +34,9 @@
                 <!-- Actions -->
                 <div class="flex items-center gap-6">
                     <!-- Accesso Empresas -->
-                    <a href="#" class="text-[#013C7B] font-bold text-sm uppercase hover:underline">
+                    <router-link :to="{ name: 'auth.login.company' }" class="text-[#013C7B] font-bold text-sm uppercase hover:underline">
                         ACCESO EMPRESAS
-                    </a>
+                    </router-link>
                     
                     <!-- Accesso Candidatos -->
                     <router-link to="/login">
@@ -98,9 +98,9 @@
 
                     <!-- Auth Actions -->
                     <div class="flex flex-col gap-4">
-                        <a href="#" class="text-[#013C7B] font-bold text-center uppercase" @click="visibleMobileMenu = false">
+                        <router-link :to="{ name: 'auth.login.company' }" class="text-[#013C7B] font-bold text-center uppercase" @click="visibleMobileMenu = false">
                             ACCESO EMPRESAS
-                        </a>
+                        </router-link>
                         <router-link to="/login" @click="visibleMobileMenu = false">
                             <button class="w-full bg-[#E91E63] hover:bg-[#C2185B] text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-colors shadow-md">
                                 ACCESO CANDIDATOS
@@ -141,7 +141,7 @@ const navLinks = [
 
 // Check if current page is Login or Register to hide nav links
 const isAuthPage = computed(() => {
-    return ['auth.login', 'auth.register', 'auth.forgot-password'].includes(route.name);
+    return ['auth.login', 'auth.register', 'auth.forgot-password', 'auth.login.company', 'auth.register.company'].includes(route.name);
 });
 
 const items = computed(() => [

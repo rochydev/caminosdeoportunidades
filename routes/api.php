@@ -32,7 +32,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('/user', [ProfileController::class, 'update']);
 
     Route::apiResource('candidate-profiles', CandidateProfileController::class);
+    
+    Route::get('job-offers/recommended', [JobOfferController::class, 'recommended']);
     Route::apiResource('job-offers', JobOfferController::class);
+    
+    Route::get('job-applications/my-candidatures', [JobApplicationController::class, 'myCandidatures']);
     Route::apiResource('job-applications', JobApplicationController::class);
 
     Route::get('abilities', function (Request $request) {

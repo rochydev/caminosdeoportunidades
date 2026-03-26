@@ -88,4 +88,48 @@ class JobApplicationController extends Controller
             'data' => $jobApplication
         ]);
     }
+
+    public function myCandidatures(Request $request)
+    {
+        $candidateId = $request->input('candidate_id') ?? auth()->id();
+
+        $applications = Application::where('candidate_user_id', $candidateId)
+            ->with([
+                'offer' => function ($query) {
+                    $query->with(['company', 'category', 'contractType', 'workdayType', 'modality']);
+                }
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->input('per_page', 10));
+
+        // Transformar datos para que el frontend reciba la oferta con la info de aplicación
+        $data = $applications->map(function ($application) {
+            return [
+                'id' => $application->offer->id,
+                'title' => $application->offer->title,
+                'description' => $application->offer->description,
+                'city' => $application->offer->city,
+                'status' => $application->offer->status,
+                'salary' => $application->offer->salary ?? null,
+                'company' => $application->offer->company,
+                'category' => $application->offer->category,
+                'contractType' => $application->offer->contractType,
+                'workdayType' => $application->offer->workdayType,
+                'modality' => $application->offer->modality,
+                'application_id' => $application->id,
+                'application_status' => $application->status
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data->toArray(),
+            'pagination' => [
+                'total' => $applications->total(),
+                'per_page' => $applications->perPage(),
+                'current_page' => $applications->currentPage(),
+                'last_page' => $applications->lastPage(),
+            ]
+        ]);
+    }
 }

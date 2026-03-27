@@ -89,6 +89,57 @@ class JobApplicationController extends Controller
         ]);
     }
 
+    public function byOffer(Request $request, $offerId)
+    {
+        $applications = Application::where('offer_id', $offerId)
+            ->with([
+                'candidate' => function ($q) {
+                    $q->with(['candidateProfile', 'media']);
+                }
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->input('per_page', 50));
+
+        $data = $applications->map(function ($application) {
+            $candidate = $application->candidate;
+            $cvMedia   = $candidate ? $candidate->getFirstMedia('cvs') : null;
+
+            return [
+                'id'            => $application->id,
+                'status'        => $application->status,
+                'company_notes' => $application->company_notes,
+                'created_at'    => $application->created_at,
+                'candidate'     => $candidate ? [
+                    'id'       => $candidate->id,
+                    'name'     => $candidate->name,
+                    'surname1' => $candidate->surname1,
+                    'email'    => $candidate->email,
+                    'avatar'   => $candidate->getFirstMediaUrl('images-users') ?: null,
+                    'cv'       => $cvMedia ? [
+                        'name' => $cvMedia->file_name,
+                        'url'  => $cvMedia->getUrl(),
+                    ] : null,
+                    'profile'  => $candidate->candidateProfile ? [
+                        'phone'            => $candidate->candidateProfile->phone,
+                        'city'             => $candidate->candidateProfile->city,
+                        'disability_degree' => $candidate->candidateProfile->disability_degree,
+                    ] : null,
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'success'    => true,
+            'data'       => $data->values()->toArray(),
+            'pagination' => [
+                'total'        => $applications->total(),
+                'per_page'     => $applications->perPage(),
+                'current_page' => $applications->currentPage(),
+                'last_page'    => $applications->lastPage(),
+            ],
+        ]);
+    }
+
     public function myCandidatures(Request $request)
     {
         $candidateId = $request->input('candidate_id') ?? auth()->id();

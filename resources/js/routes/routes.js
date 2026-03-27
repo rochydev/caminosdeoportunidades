@@ -2,6 +2,7 @@ import { authStore } from "../store/auth";
 
 const AuthenticatedLayout = () => import('../layouts/AdminLayout.vue');
 const AuthenticatedUserLayout = () => import('../layouts/UserLayout.vue');
+const AuthenticatedCompanyLayout = () => import('../layouts/CompanyLayout.vue');
 const GuestLayout = () => import('../layouts/GuestLayout.vue');
 
 async function requireLogin(to, from, next) {
@@ -125,17 +126,26 @@ export default [
                 name: 'app.profile',
                 path: 'profile',
                 component: () => import('../views/user/profile.vue'),
-                meta: {
-                    breadCrumb: 'Perfil',
-                },
+                meta: { breadCrumb: 'Mi Perfil' },
             },
-
+            {
+                name: 'jobs.index',
+                path: 'jobs',
+                component: () => import('../views/jobs/Index.vue'),
+                meta: { breadCrumb: 'Buscar Ofertas' },
+            },
+            {
+                name: 'jobs.show',
+                path: 'jobs/:id',
+                component: () => import('../views/jobs/Show.vue'),
+                meta: { breadCrumb: 'Detalle de Oferta' },
+            },
         ]
     },
 
     {
         path: '/empresa/dashboard',
-        component: AuthenticatedUserLayout,
+        component: AuthenticatedCompanyLayout,
         beforeEnter: requireCompany,
         meta: { breadCrumb: 'Dashboard Empresa' },
         children: [
@@ -143,9 +153,31 @@ export default [
                 name: 'company.dashboard',
                 path: '',
                 component: () => import('../views/company/index.vue'),
-                meta: {
-                    breadCrumb: 'Inicio',
-                },
+                meta: { breadCrumb: 'Inicio' },
+            },
+            {
+                name: 'company.offers.index',
+                path: 'ofertas',
+                component: () => import('../views/company/offers/Index.vue'),
+                meta: { breadCrumb: 'Mis Ofertas' },
+            },
+            {
+                name: 'company.offers.create',
+                path: 'ofertas/crear',
+                component: () => import('../views/company/offers/Form.vue'),
+                meta: { breadCrumb: 'Nueva Oferta' },
+            },
+            {
+                name: 'company.offers.edit',
+                path: 'ofertas/:id/editar',
+                component: () => import('../views/company/offers/Form.vue'),
+                meta: { breadCrumb: 'Editar Oferta' },
+            },
+            {
+                name: 'company.offers.show',
+                path: 'ofertas/:id',
+                component: () => import('../views/company/offers/Show.vue'),
+                meta: { breadCrumb: 'Candidaturas' },
             },
         ]
     },

@@ -79,6 +79,10 @@ class User extends Authenticatable implements HasMedia
         $this->addMediaCollection('images/users')
             ->useFallbackUrl('/images/placeholder.jpg')
             ->useFallbackPath(public_path('/images/placeholder.jpg'));
+
+        $this->addMediaCollection('cvs')
+            ->acceptsMimeTypes(['application/pdf'])
+            ->singleFile();
     }
 
     public function registerMediaConversions(Media $media = null): void

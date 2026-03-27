@@ -22,7 +22,11 @@ class UserResource extends JsonResource
             'surname2' => $this->surname2,
             'email' => $this->email,
             'roles' => RoleResource::collection($this->roles),
-            'avatar' => count($this->getMedia('*')) > 0 ? $this->getMedia('*')[0]->getUrl() : null,
+            'avatar' => $this->getFirstMediaUrl('images-users') ?: null,
+            'cv' => ($cvMedia = $this->getFirstMedia('cvs')) ? [
+                'name' => $cvMedia->file_name,
+                'url' => $cvMedia->getUrl(),
+            ] : null,
             'created_at' => $this->created_at->toDateString()
         ];
     }

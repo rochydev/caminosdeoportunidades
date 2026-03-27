@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-    Route::apiResource('users', UserController::class);
     Route::post('users/updateimg', [UserController::class, 'updateimg']);
+    Route::post('users/upload-cv', [UserController::class, 'uploadCv']);
+    Route::delete('users/delete-cv', [UserController::class, 'deleteCv']);
+    Route::apiResource('users', UserController::class);
 
 
     Route::apiResource('categories', CategoryController::class);

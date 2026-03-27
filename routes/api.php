@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CandidateProfileController;
+use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\JobApplicationController;
 use App\Http\Controllers\Api\JobOfferController;
@@ -39,7 +40,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('job-offers', JobOfferController::class);
     
     Route::get('job-applications/my-candidatures', [JobApplicationController::class, 'myCandidatures']);
+    Route::get('job-applications/by-offer/{offerId}', [JobApplicationController::class, 'byOffer']);
     Route::apiResource('job-applications', JobApplicationController::class);
+
+    Route::get('catalogs/form-data', [CatalogController::class, 'formData']);
 
     Route::get('abilities', function (Request $request) {
         return $request->user()->roles()->with('permissions')

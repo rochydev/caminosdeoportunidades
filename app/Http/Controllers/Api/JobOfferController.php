@@ -77,7 +77,6 @@ class JobOfferController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'company_user_id' => ['required', 'integer', 'exists:users,id'],
             'category_id' => ['nullable', 'integer', 'exists:job_category,id'],
             'contract_type_id' => ['nullable', 'integer', 'exists:contract_type,id'],
             'workday_type_id' => ['nullable', 'integer', 'exists:workday_type,id'],
@@ -90,6 +89,8 @@ class JobOfferController extends Controller
             'is_adapted' => ['nullable', 'boolean'],
             'status' => ['nullable', 'in:DRAFT,PUBLISHED,CLOSED'],
         ]);
+
+        $data['company_user_id'] = auth()->id();
 
         $offer = JobOffer::create($data);
 

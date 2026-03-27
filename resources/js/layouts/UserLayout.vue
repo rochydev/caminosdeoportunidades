@@ -7,14 +7,13 @@ import { ref } from 'vue';
 import MainLayout from './MainLayout.vue';
 
 const items = ref([
-   
     {
-        label: 'Contenido',
+        label: 'Empleo',
         items: [
             {
-                label: 'Posts',
-                icon: 'pi pi-th-large',
-                route: '/app/posts'
+                label: 'Buscar Ofertas',
+                icon: 'pi pi-search',
+                route: '/app/jobs'
             },
         ]
     },
@@ -22,7 +21,7 @@ const items = ref([
         label: 'Cuenta',
         items: [
             {
-                label: 'Perfil',
+                label: 'Mi Perfil',
                 icon: 'pi pi-user',
                 route: '/app/profile'
             }

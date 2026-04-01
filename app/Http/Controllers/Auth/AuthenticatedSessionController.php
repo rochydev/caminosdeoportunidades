@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use App\Models\CompanyProfile;
+use App\Models\CandidateProfile;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -81,12 +83,28 @@ class AuthenticatedSessionController extends Controller
             'password' => Hash::make($request['password']),
             'name' => $request['name'],
             'surname1' => $request['surname1'],
-            'surname2' => $request['surname2'],
+            'surname2' => $request['surname2'] ?? null,
+            'status' => 'ACTIVE',
         ]);
 
-        $role = Role::where('name', 'candidate')->first();
+        $roleType = $request['role_type'] ?? 'candidate';
+        $role = Role::where('name', $roleType)->first();
         if ($role) {
             $user->assignRole($role);
+        }
+
+        if ($roleType === 'company') {
+            CompanyProfile::create([
+                'user_id' => $user->id,
+                'company_name' => $request['company_name'],
+                'validation_status' => 'PENDING',
+            ]);
+        } else {
+            CandidateProfile::create([
+                'user_id' => $user->id,
+                'first_name' => $request['name'],
+                'last_name' => trim(($request['surname1'] ?? '') . ' ' . ($request['surname2'] ?? '')),
+            ]);
         }
 
         return new \App\Http\Resources\UserResource($user);

@@ -77,7 +77,6 @@ class JobOfferController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'company_user_id' => ['required', 'integer', 'exists:users,id'],
             'category_id' => ['nullable', 'integer', 'exists:job_category,id'],
             'contract_type_id' => ['nullable', 'integer', 'exists:contract_type,id'],
             'workday_type_id' => ['nullable', 'integer', 'exists:workday_type,id'],
@@ -90,6 +89,8 @@ class JobOfferController extends Controller
             'is_adapted' => ['nullable', 'boolean'],
             'status' => ['nullable', 'in:DRAFT,PUBLISHED,CLOSED'],
         ]);
+
+        $data['company_user_id'] = auth()->id();
 
         $offer = JobOffer::create($data);
 
@@ -128,5 +129,63 @@ class JobOfferController extends Controller
         $jobOffer->delete();
 
         return response()->noContent();
+    }
+
+    public function recommended(Request $request)
+    {
+        $candidateId = $request->input('candidate_id') ?? auth()->id();
+
+        // Obtener ofertas a las que ya ha aplicado
+        $appliedOfferIds = \DB::table('application')
+            ->where('candidate_user_id', $candidateId)
+            ->get()
+            ->map(function ($record) {
+                return $record->offer_id;
+            })
+            ->toArray();
+
+        // Construir consulta base
+        $query = JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality'])
+            ->where('status', 'PUBLISHED')
+            ->whereNotIn('id', $appliedOfferIds);
+
+
+        // Ordenar por más reciente
+        $sortDirection = $request->input('sort', 'desc');
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        $query->orderBy('created_at', $sortDirection);
+
+        $perPage = $request->input('per_page', 3);
+        $offers = $query->paginate($perPage);
+
+        // Transformar datos para consistencia con el frontend
+        $data = collect($offers->items())->map(function ($offer) {
+            return [
+                'id' => $offer->id,
+                'title' => $offer->title,
+                'description' => $offer->description,
+                'city' => $offer->city,
+                'status' => $offer->status,
+                'salary' => $offer->salary ?? null,
+                'company' => $offer->company,
+                'category' => $offer->category,
+                'contractType' => $offer->contractType,
+                'workdayType' => $offer->workdayType,
+                'modality' => $offer->modality
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data->toArray(),
+            'pagination' => [
+                'total' => $offers->total(),
+                'per_page' => $offers->perPage(),
+                'current_page' => $offers->currentPage(),
+                'last_page' => $offers->lastPage(),
+            ]
+        ]);
     }
 }

@@ -126,14 +126,38 @@ class UserController extends Controller
     public function updateimg(Request $request)
     {
         $user = User::find($request->id);
-      
-        if($request->hasFile('picture')) {
-            $user->media()->delete();
-            $media = $user->addMediaFromRequest('picture')->preservingOriginal()->toMediaCollection('images-users');
 
+        if($request->hasFile('picture')) {
+            $user->clearMediaCollection('images-users');
+            $user->addMediaFromRequest('picture')->preservingOriginal()->toMediaCollection('images-users');
         }
-        $user =  User::with('media')->find($request->id);
+        $user = User::with('media')->find($request->id);
         return new UserResource($user);
+    }
+
+    public function uploadCv(Request $request)
+    {
+        $request->validate([
+            'cv' => 'required|file|mimes:pdf|max:10240',
+            'id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->id);
+        $user->addMediaFromRequest('cv')->toMediaCollection('cvs');
+
+        return new UserResource($user->fresh());
+    }
+
+    public function deleteCv(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::find($request->id);
+        $user->clearMediaCollection('cvs');
+
+        return new UserResource($user->fresh());
     }
 
     /**

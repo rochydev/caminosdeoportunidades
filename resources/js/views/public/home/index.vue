@@ -17,25 +17,27 @@
                     <div class="flex flex-col md:flex-row items-end gap-4">
                         <div class="flex-1 w-full">
                             <label class="block text-sm font-medium text-gray-600 mb-2">Busco ofertas de...</label>
-                            <InputText 
-                                placeholder="Puesto, empresa o palabra clave" 
+                            <InputText
+                                v-model="searchKeyword"
+                                placeholder="Puesto, empresa o palabra clave"
                                 class="w-full p-3 rounded-lg border-gray-300 shadow-sm"
+                                @keyup.enter="goToOffers"
                             />
                         </div>
                         <div class="flex-1 w-full">
                             <label class="block text-sm font-medium text-gray-600 mb-2">en...</label>
-                            <div class="relative">
-                                <InputText 
-                                    placeholder="Toda España" 
-                                    class="w-full p-3 rounded-lg border-gray-300 shadow-sm"
-                                />
-                                <i class="pi pi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            </div>
+                            <InputText
+                                v-model="searchCity"
+                                placeholder="Toda España"
+                                class="w-full p-3 rounded-lg border-gray-300 shadow-sm"
+                                @keyup.enter="goToOffers"
+                            />
                         </div>
-                        <Button 
-                            label="BUSCAR" 
+                        <Button
+                            label="BUSCAR"
                             class="w-full md:w-auto border-none font-bold px-8 py-3 rounded-lg shadow-md transition-colors"
                             style="background-color: #013C7B !important; color: white;"
+                            @click="goToOffers"
                         />
                     </div>
                 </div>
@@ -241,7 +243,19 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { authStore } from "@/store/auth";
+
+const router = useRouter();
+const searchKeyword = ref('');
+const searchCity = ref('');
+
+const goToOffers = () => {
+    const query = {};
+    if (searchKeyword.value) query.search = searchKeyword.value;
+    if (searchCity.value) query.city = searchCity.value;
+    router.push({ name: 'ofertas.index', query });
+};
 
 const empresas = ref([
     { id: 1, name: 'Empresa 1', ofertas: '4 ofertas', image: '/images/imagen-placeholder-temporal.png' },

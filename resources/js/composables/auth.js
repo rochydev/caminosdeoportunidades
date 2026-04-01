@@ -1,5 +1,5 @@
 import { ref, reactive, inject } from 'vue'
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 import { ABILITY_TOKEN } from '@casl/vue';
 import { authStore } from "../store/auth";
@@ -13,6 +13,7 @@ export default function useAuth() {
     const processing = ref(false)
     const validationErrors = ref({})
     const router = useRouter()
+    const route = useRoute()
     const swal = inject('$swal')
     const ability = inject(ABILITY_TOKEN)
     const auth = authStore()
@@ -60,7 +61,20 @@ export default function useAuth() {
                     showConfirmButton: false,
                     timer: 1500
                 })
-                await router.push({ name: 'admin.index' })
+                const roles = auth.user?.roles ?? [];
+                const isAdmin = roles.some(r => r.name?.toLowerCase().includes('admin'));
+                const isCompany = roles.some(r => r.name?.toLowerCase() === 'company');
+                // Si venía de una oferta u otra página, redirigir allí
+                const redirectTo = route.query?.redirect;
+                if (redirectTo) {
+                    await router.push(redirectTo);
+                } else if (isAdmin) {
+                    await router.push({ name: 'admin.index' });
+                } else if (isCompany) {
+                    await router.push({ name: 'empresa.index' });
+                } else {
+                    await router.push({ name: 'app.index' });
+                }
             })
             .catch(error => {
                 if (error.response?.data) {

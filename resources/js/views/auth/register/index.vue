@@ -133,9 +133,9 @@
                     </p>
                     <p class="mt-4 text-sm text-gray-600">
                         ¿Eres una empresa?
-                        <a href="#" class="text-[#013C7B] font-bold hover:underline">
-                            Regístrate aquí
-                        </a>
+                        <router-link :to="{ name: 'auth.login.empresa' }" class="text-[#013C7B] font-bold hover:underline">
+                            Accede aquí
+                        </router-link>
                     </p>
                 </div>
             </form>

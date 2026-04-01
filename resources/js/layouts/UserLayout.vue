@@ -7,26 +7,20 @@ import { ref } from 'vue';
 import MainLayout from './MainLayout.vue';
 
 const items = ref([
-   
     {
-        label: 'Contenido',
+        label: 'Mi espacio',
         items: [
-            {
-                label: 'Posts',
-                icon: 'pi pi-th-large',
-                route: '/app/posts'
-            },
+            { label: 'Inicio',           icon: 'pi pi-home',       route: '/app' },
+            { label: 'Mi Perfil',        icon: 'pi pi-user',       route: '/app/profile' },
+            { label: 'Mi Currículum',    icon: 'pi pi-file',       route: '/app/cv' },
+            { label: 'Mis Candidaturas', icon: 'pi pi-send',       route: '/app/candidaturas' },
         ]
     },
     {
-        label: 'Cuenta',
+        label: 'Explorar',
         items: [
-            {
-                label: 'Perfil',
-                icon: 'pi pi-user',
-                route: '/app/profile'
-            }
+            { label: 'Ofertas de empleo', icon: 'pi pi-briefcase', route: '/ofertas' },
         ]
-    }
+    },
 ]);
 </script>

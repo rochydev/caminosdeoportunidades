@@ -8,27 +8,32 @@ import MainLayout from './MainLayout.vue';
 
 const items = ref([
     {
-        label: 'Empresa',
+        label: 'Ofertas de empleo',
         items: [
-            {
-                label: 'Dashboard',
-                icon: 'pi pi-home',
-                route: '/empresa/dashboard'
-            },
             {
                 label: 'Mis Ofertas',
                 icon: 'pi pi-briefcase',
-                route: '/empresa/dashboard/ofertas'
+                route: '/empresa/ofertas'
             },
+        ]
+    },
+    {
+        label: 'Candidaturas',
+        items: [
+            {
+                label: 'Ver Candidaturas',
+                icon: 'pi pi-users',
+                route: '/empresa/candidaturas'
+            }
         ]
     },
     {
         label: 'Cuenta',
         items: [
             {
-                label: 'Perfil',
+                label: 'Perfil Empresa',
                 icon: 'pi pi-building',
-                route: '/empresa/dashboard/perfil'
+                route: '/empresa/perfil'
             }
         ]
     }

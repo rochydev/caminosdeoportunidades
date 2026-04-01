@@ -7,20 +7,20 @@ const GuestLayout = () => import('../layouts/GuestLayout.vue');
 
 async function requireLogin(to, from, next) {
     const auth = authStore();
+    await auth.getUser();
     const isLogin = !!auth.authenticated;
 
-    if (isLogin) {
-        next()
-    } else {
-        next('/login')
+    if (!isLogin) return next('/login');
+
+    // Redirigir empresas a su panel
+    if (hasCompany(auth.user?.roles ?? []) && !hasAdmin(auth.user?.roles ?? [])) {
+        return next('/empresa');
     }
+    next();
 }
 
 const hasAdmin = (roles = []) =>
     roles.some((role) => role?.name?.toLowerCase().includes('admin'));
-
-const hasCompany = (roles = []) =>
-    roles.some((role) => role?.name?.toLowerCase().includes('company'));
 
 async function guest(to, from, next) {
     const auth = authStore()
@@ -33,35 +33,42 @@ async function guest(to, from, next) {
     }
 }
 
-async function requireAdmin(to, from, next) {
-    const auth = authStore();
-    let isLogin = !!auth.authenticated;
-    let user = auth.user;
-
-    if (isLogin) {
-        if (hasAdmin(user.roles)) {
-            next()
-        } else {
-            next('/app')
-        }
-    } else {
-        next('/login')
-    }
-}
+const hasCompany = (roles = []) =>
+    roles.some((role) => role?.name?.toLowerCase() === 'company');
 
 async function requireCompany(to, from, next) {
     const auth = authStore();
-    let isLogin = !!auth.authenticated;
-    let user = auth.user;
+    await auth.getUser();
+    const isLogin = !!auth.authenticated;
+    const user = auth.user;
 
     if (isLogin) {
-        if (hasCompany(user.roles)) {
-            next()
+        if (hasCompany(user.roles) || hasAdmin(user.roles)) {
+            next();
         } else {
-            next('/app')
+            next('/app');
         }
     } else {
-        next('/empresa/login')
+        next('/login');
+    }
+}
+
+async function requireAdmin(to, from, next) {
+    const auth = authStore();
+    await auth.getUser();
+    const isLogin = !!auth.authenticated;
+    const user = auth.user;
+
+    if (isLogin) {
+        if (hasAdmin(user.roles)) {
+            next();
+        } else if (hasCompany(user.roles)) {
+            next('/empresa');
+        } else {
+            next('/app');
+        }
+    } else {
+        next('/login');
     }
 }
 
@@ -75,6 +82,16 @@ export default [
                 name: 'home',
                 component: () => import('../views/public/home/index.vue'),
             },
+            {
+                path: 'ofertas',
+                name: 'ofertas.index',
+                component: () => import('../views/public/ofertas/index.vue'),
+            },
+            {
+                path: 'ofertas/:id',
+                name: 'ofertas.show',
+                component: () => import('../views/public/ofertas/show.vue'),
+            },
 
             {
                 path: 'login',
@@ -83,21 +100,15 @@ export default [
                 beforeEnter: guest,
             },
             {
+                path: 'login/empresa',
+                name: 'auth.login.empresa',
+                component: () => import('../views/auth/login/LoginEmpresa.vue'),
+                beforeEnter: guest,
+            },
+            {
                 path: 'register',
                 name: 'auth.register',
                 component: () => import('../views/auth/register/index.vue'),
-                beforeEnter: guest,
-            },
-            {
-                path: 'empresa/login',
-                name: 'auth.login.company',
-                component: () => import('../views/auth/login/LoginCompany.vue'),
-                beforeEnter: guest,
-            },
-            {
-                path: 'empresa/registro',
-                name: 'auth.register.company',
-                component: () => import('../views/auth/register/RegisterCompany.vue'),
                 beforeEnter: guest,
             },
             {
@@ -120,8 +131,14 @@ export default [
         component: AuthenticatedUserLayout,
         name: 'app',
         beforeEnter: requireLogin,
-        meta: { breadCrumb: '.' },
+        meta: { breadCrumb: 'Inicio' },
         children: [
+            {
+                name: 'app.index',
+                path: '',
+                component: () => import('../views/user/index.vue'),
+                meta: { breadCrumb: 'Inicio', hideBreadcrumb: true },
+            },
             {
                 name: 'app.profile',
                 path: 'profile',
@@ -129,59 +146,57 @@ export default [
                 meta: { breadCrumb: 'Mi Perfil' },
             },
             {
-                name: 'jobs.index',
-                path: 'jobs',
-                component: () => import('../views/jobs/Index.vue'),
-                meta: { breadCrumb: 'Buscar Ofertas' },
+                name: 'app.cv',
+                path: 'cv',
+                component: () => import('../views/user/cv.vue'),
+                meta: { breadCrumb: 'Mi Currículum' },
             },
             {
-                name: 'jobs.show',
-                path: 'jobs/:id',
-                component: () => import('../views/jobs/Show.vue'),
-                meta: { breadCrumb: 'Detalle de Oferta' },
+                name: 'app.candidaturas',
+                path: 'candidaturas',
+                component: () => import('../views/user/candidaturas.vue'),
+                meta: { breadCrumb: 'Mis Candidaturas' },
             },
         ]
     },
+
 
     {
-        path: '/empresa/dashboard',
+        path: '/empresa',
         component: AuthenticatedCompanyLayout,
+        name: 'empresa',
         beforeEnter: requireCompany,
-        meta: { breadCrumb: 'Dashboard Empresa' },
+        meta: { breadCrumb: 'Empresa' },
         children: [
             {
-                name: 'company.dashboard',
+                name: 'empresa.index',
                 path: '',
-                component: () => import('../views/company/index.vue'),
-                meta: { breadCrumb: 'Inicio' },
+                component: () => import('../views/empresa/index.vue'),
+                meta: {
+                    breadCrumb: 'Dashboard',
+                    hideBreadcrumb: true
+                }
             },
             {
-                name: 'company.offers.index',
+                name: 'empresa.ofertas',
                 path: 'ofertas',
-                component: () => import('../views/company/offers/Index.vue'),
-                meta: { breadCrumb: 'Mis Ofertas' },
+                component: () => import('../views/empresa/ofertas.vue'),
+                meta: { breadCrumb: 'Mis Ofertas' }
             },
             {
-                name: 'company.offers.create',
-                path: 'ofertas/crear',
-                component: () => import('../views/company/offers/Form.vue'),
-                meta: { breadCrumb: 'Nueva Oferta' },
+                name: 'empresa.candidaturas',
+                path: 'candidaturas',
+                component: () => import('../views/empresa/candidaturas.vue'),
+                meta: { breadCrumb: 'Candidaturas' }
             },
             {
-                name: 'company.offers.edit',
-                path: 'ofertas/:id/editar',
-                component: () => import('../views/company/offers/Form.vue'),
-                meta: { breadCrumb: 'Editar Oferta' },
-            },
-            {
-                name: 'company.offers.show',
-                path: 'ofertas/:id',
-                component: () => import('../views/company/offers/Show.vue'),
-                meta: { breadCrumb: 'Candidaturas' },
+                name: 'empresa.profile',
+                path: 'perfil',
+                component: () => import('../views/user/profile.vue'),
+                meta: { breadCrumb: 'Perfil Empresa' }
             },
         ]
     },
-
 
     {
         path: '/admin',

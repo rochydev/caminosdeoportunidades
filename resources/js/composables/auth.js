@@ -1,5 +1,5 @@
 import { ref, reactive, inject } from 'vue'
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 import { ABILITY_TOKEN } from '@casl/vue';
 import { authStore } from "../store/auth";
@@ -13,6 +13,7 @@ export default function useAuth() {
     const processing = ref(false)
     const validationErrors = ref({})
     const router = useRouter()
+    const route = useRoute()
     const swal = inject('$swal')
     const ability = inject(ABILITY_TOKEN)
     const auth = authStore()
@@ -40,18 +41,7 @@ export default function useAuth() {
         surname2: '',
         email: '',
         password: '',
-        password_confirmation: '',
-        role_type: 'candidate'
-    })
-
-    const registerCompanyForm = reactive({
-        name: '',
-        surname1: '',
-        company_name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
-        role_type: 'company'
+        password_confirmation: ''
     })
 
     const submitLogin = async () => {
@@ -71,12 +61,19 @@ export default function useAuth() {
                     showConfirmButton: false,
                     timer: 1500
                 })
-                if (auth.is('company')) {
-                    await router.push({ name: 'company.dashboard' })
-                } else if (auth.is('candidate')) {
-                    await router.push({ name: 'app.profile' })
+                const roles = auth.user?.roles ?? [];
+                const isAdmin = roles.some(r => r.name?.toLowerCase().includes('admin'));
+                const isCompany = roles.some(r => r.name?.toLowerCase() === 'company');
+                // Si venía de una oferta u otra página, redirigir allí
+                const redirectTo = route.query?.redirect;
+                if (redirectTo) {
+                    await router.push(redirectTo);
+                } else if (isAdmin) {
+                    await router.push({ name: 'admin.index' });
+                } else if (isCompany) {
+                    await router.push({ name: 'empresa.index' });
                 } else {
-                    await router.push({ name: 'admin.index' })
+                    await router.push({ name: 'app.index' });
                 }
             })
             .catch(error => {
@@ -104,30 +101,6 @@ export default function useAuth() {
                     timer: 1500
                 })
                 await router.push({ name: 'auth.login' })
-            })
-            .catch(error => {
-                if (error.response?.data) {
-                    validationErrors.value = error.response.data.errors
-                }
-            })
-            .finally(() => processing.value = false)
-    }
-
-    const submitCompanyRegister = async () => {
-        if (processing.value) return
-
-        processing.value = true
-        validationErrors.value = {}
-
-        await axios.post('/register', registerCompanyForm)
-            .then(async response => {
-                swal({
-                    icon: 'success',
-                    title: 'Empresa registrada correctamente',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-                await router.push({ name: 'auth.login.company' })
             })
             .catch(error => {
                 if (error.response?.data) {
@@ -252,14 +225,12 @@ export default function useAuth() {
     return {
         loginForm,
         registerForm,
-        registerCompanyForm,
         forgotForm,
         resetForm,
         validationErrors,
         processing,
         submitLogin,
         submitRegister,
-        submitCompanyRegister,
         submitForgotPassword,
         submitResetPassword,
         user,

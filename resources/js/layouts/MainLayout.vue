@@ -101,7 +101,8 @@ const pageTitle = computed(() => {
 const breadcrumbs = computed(() => {
     const currentPath = route.path;
     const isApp = currentPath.startsWith('/app');
-    const rootPath = isApp ? '/app' : '/admin';
+    const isEmpresa = currentPath.startsWith('/empresa');
+    const rootPath = isApp ? '/app' : (isEmpresa ? '/empresa' : '/admin');
     
     if (!currentPath || currentPath === rootPath) {
         return [];
@@ -110,7 +111,7 @@ const breadcrumbs = computed(() => {
     let pathArray = currentPath.split("/").filter(Boolean);
     
     // Remover el prefijo (admin o app) del inicio si existe
-    if (pathArray[0] === 'admin' || pathArray[0] === 'app') {
+    if (pathArray[0] === 'admin' || pathArray[0] === 'app' || pathArray[0] === 'empresa') {
         pathArray.shift();
     }
     

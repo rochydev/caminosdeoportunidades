@@ -2,17 +2,21 @@ import { authStore } from "../store/auth";
 
 const AuthenticatedLayout = () => import('../layouts/AdminLayout.vue');
 const AuthenticatedUserLayout = () => import('../layouts/UserLayout.vue');
+const AuthenticatedCompanyLayout = () => import('../layouts/CompanyLayout.vue');
 const GuestLayout = () => import('../layouts/GuestLayout.vue');
 
 async function requireLogin(to, from, next) {
     const auth = authStore();
+    await auth.getUser();
     const isLogin = !!auth.authenticated;
 
-    if (isLogin) {
-        next()
-    } else {
-        next('/login')
+    if (!isLogin) return next('/login');
+
+    // Redirigir empresas a su panel
+    if (hasCompany(auth.user?.roles ?? []) && !hasAdmin(auth.user?.roles ?? [])) {
+        return next('/empresa');
     }
+    next();
 }
 
 const hasAdmin = (roles = []) =>
@@ -29,19 +33,42 @@ async function guest(to, from, next) {
     }
 }
 
+const hasCompany = (roles = []) =>
+    roles.some((role) => role?.name?.toLowerCase() === 'company');
+
+async function requireCompany(to, from, next) {
+    const auth = authStore();
+    await auth.getUser();
+    const isLogin = !!auth.authenticated;
+    const user = auth.user;
+
+    if (isLogin) {
+        if (hasCompany(user.roles) || hasAdmin(user.roles)) {
+            next();
+        } else {
+            next('/app');
+        }
+    } else {
+        next('/login');
+    }
+}
+
 async function requireAdmin(to, from, next) {
     const auth = authStore();
-    let isLogin = !!auth.authenticated;
-    let user = auth.user;
+    await auth.getUser();
+    const isLogin = !!auth.authenticated;
+    const user = auth.user;
 
     if (isLogin) {
         if (hasAdmin(user.roles)) {
-            next()
+            next();
+        } else if (hasCompany(user.roles)) {
+            next('/empresa');
         } else {
-            next('/app')
+            next('/app');
         }
     } else {
-        next('/login')
+        next('/login');
     }
 }
 
@@ -55,11 +82,27 @@ export default [
                 name: 'home',
                 component: () => import('../views/public/home/index.vue'),
             },
+            {
+                path: 'ofertas',
+                name: 'ofertas.index',
+                component: () => import('../views/public/ofertas/index.vue'),
+            },
+            {
+                path: 'ofertas/:id',
+                name: 'ofertas.show',
+                component: () => import('../views/public/ofertas/show.vue'),
+            },
 
             {
                 path: 'login',
                 name: 'auth.login',
                 component: () => import('../views/auth/login/Login.vue'),
+                beforeEnter: guest,
+            },
+            {
+                path: 'login/empresa',
+                name: 'auth.login.empresa',
+                component: () => import('../views/auth/login/LoginEmpresa.vue'),
                 beforeEnter: guest,
             },
             {
@@ -88,20 +131,72 @@ export default [
         component: AuthenticatedUserLayout,
         name: 'app',
         beforeEnter: requireLogin,
-        meta: { breadCrumb: '.' },
+        meta: { breadCrumb: 'Inicio' },
         children: [
+            {
+                name: 'app.index',
+                path: '',
+                component: () => import('../views/user/index.vue'),
+                meta: { breadCrumb: 'Inicio', hideBreadcrumb: true },
+            },
             {
                 name: 'app.profile',
                 path: 'profile',
                 component: () => import('../views/user/profile.vue'),
-                meta: {
-                    breadCrumb: 'Perfil',
-                },
+                meta: { breadCrumb: 'Mi Perfil' },
             },
-
+            {
+                name: 'app.cv',
+                path: 'cv',
+                component: () => import('../views/user/cv.vue'),
+                meta: { breadCrumb: 'Mi Currículum' },
+            },
+            {
+                name: 'app.candidaturas',
+                path: 'candidaturas',
+                component: () => import('../views/user/candidaturas.vue'),
+                meta: { breadCrumb: 'Mis Candidaturas' },
+            },
         ]
     },
 
+
+    {
+        path: '/empresa',
+        component: AuthenticatedCompanyLayout,
+        name: 'empresa',
+        beforeEnter: requireCompany,
+        meta: { breadCrumb: 'Empresa' },
+        children: [
+            {
+                name: 'empresa.index',
+                path: '',
+                component: () => import('../views/empresa/index.vue'),
+                meta: {
+                    breadCrumb: 'Dashboard',
+                    hideBreadcrumb: true
+                }
+            },
+            {
+                name: 'empresa.ofertas',
+                path: 'ofertas',
+                component: () => import('../views/empresa/ofertas.vue'),
+                meta: { breadCrumb: 'Mis Ofertas' }
+            },
+            {
+                name: 'empresa.candidaturas',
+                path: 'candidaturas',
+                component: () => import('../views/empresa/candidaturas.vue'),
+                meta: { breadCrumb: 'Candidaturas' }
+            },
+            {
+                name: 'empresa.profile',
+                path: 'perfil',
+                component: () => import('../views/user/profile.vue'),
+                meta: { breadCrumb: 'Perfil Empresa' }
+            },
+        ]
+    },
 
     {
         path: '/admin',

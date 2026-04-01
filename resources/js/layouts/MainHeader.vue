@@ -62,13 +62,19 @@
                                             </router-link>
                                         </li>
                                         <li>
-                                            <router-link v-if="auth.is('admin') || auth.is('docent')" to="/admin" class="dropdown-menu-item">
+                                            <router-link v-if="auth.is('admin')" to="/admin" class="dropdown-menu-item">
                                                 <i class="pi pi-shield"></i>
                                                 <span>Panel Admin</span>
                                             </router-link>
                                         </li>
                                         <li>
-                                            <router-link to="/app" class="dropdown-menu-item">
+                                            <router-link v-if="auth.is('company')" to="/empresa" class="dropdown-menu-item">
+                                                <i class="pi pi-building"></i>
+                                                <span>Panel Empresa</span>
+                                            </router-link>
+                                        </li>
+                                        <li>
+                                            <router-link v-if="!auth.is('company')" to="/app" class="dropdown-menu-item">
                                                 <i class="pi pi-graduation-cap"></i>
                                                 <span>Panel Usuario</span>
                                             </router-link>

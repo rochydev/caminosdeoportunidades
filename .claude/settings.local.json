@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git apply:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git push:*)",
+      "Bash(xargs -I{} git log {} --format=\"%H\")",
+      "Bash(xargs -I{} git show -s --format=\"%H %B\" {})",
+      "Bash(git pull:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(while read:*)",
+      "Bash(do if:*)",
+      "Bash(then echo:*)",
+      "Bash(git rebase:*)",
+      "Bash(xargs grep:*)",
+      "Bash(npm run:*)",
+      "Bash(ls public/build/assets/*.woff2)",
+      "Bash(ls c:/xampp/htdocs/caminosdeoportunidades/public/build/assets/*.woff2)",
+      "Bash(grep -l \"primeicons\\\\|font-face\" c:/xampp/htdocs/caminosdeoportunidades/public/build/assets/*.css)",
+      "Bash(ls c:/xampp/htdocs/caminosdeoportunidades/public/build/assets/*.css)",
+      "Bash(git -C c:/xampp/htdocs/caminosdeoportunidades log --oneline)",
+      "Bash(git -C c:/xampp/htdocs/caminosdeoportunidades log --format=\"%H %s\")"
+    ]
+  }
+}

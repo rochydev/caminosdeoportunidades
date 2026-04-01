@@ -32,30 +32,44 @@
                 <div v-else></div> <!-- Spacer -->
                 
                 <!-- Actions -->
-                <div class="flex items-center gap-6">
-                    <!-- Accesso Empresas -->
-                    <a href="#" class="text-[#013C7B] font-bold text-sm uppercase hover:underline">
-                        ACCESO EMPRESAS
-                    </a>
-                    
-                    <!-- Accesso Candidatos -->
-                    <router-link to="/login">
-                        <button class="bg-[#E91E63] hover:bg-[#C2185B] text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-colors shadow-md">
-                            ACCESO CANDIDATOS
-                        </button>
-                    </router-link>
+                <div class="flex items-center gap-4">
+                    <!-- Guest: botones de acceso -->
+                    <template v-if="!isLoggedIn">
+                        <router-link :to="{ name: 'auth.login.empresa' }">
+                            <button class="border-2 border-[#013C7B] text-[#013C7B] hover:bg-[#013C7B] hover:text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                                ACCESO EMPRESAS
+                            </button>
+                        </router-link>
+                        <router-link to="/login">
+                            <button class="bg-[#E91E63] hover:bg-[#C2185B] text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                                ACCESO CANDIDATOS
+                            </button>
+                        </router-link>
+                    </template>
 
-                    <!-- User Menu (if logged in) -->
-                    <div v-if="authStore().user?.name" class="ml-4">
-                         <button 
-                            type="button" 
-                            @click="toggle"
-                            class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-                            <Avatar :image="authStore().user.avatar" :label="authStore().user.name[0]" shape="circle" size="small" />
-                            <i class="pi pi-chevron-down text-xs"></i>
-                        </button>
-                        <Menu ref="menu" :model="items" popup />
-                    </div>
+                    <!-- Logueado: avatar + menú -->
+                    <template v-else>
+                        <div class="flex items-center gap-1">
+                            <button
+                                type="button"
+                                @click="toggle"
+                                class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors">
+                                <Avatar
+                                    :image="currentUser.avatar || undefined"
+                                    :label="!currentUser.avatar ? userInitials : undefined"
+                                    shape="circle"
+                                    size="normal"
+                                    class="w-9 h-9 shrink-0"
+                                />
+                                <div class="text-left hidden xl:block">
+                                    <p class="text-sm font-semibold text-gray-900 leading-tight">{{ currentUser.name }}</p>
+                                    <p class="text-xs text-gray-500 leading-tight">{{ userRoleLabel }}</p>
+                                </div>
+                                <i class="pi pi-chevron-down text-xs text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': menuOpen }"></i>
+                            </button>
+                            <Menu ref="menu" :model="items" popup @show="menuOpen = true" @hide="menuOpen = false" />
+                        </div>
+                    </template>
                 </div>
             </div>
         </nav>
@@ -98,14 +112,41 @@
 
                     <!-- Auth Actions -->
                     <div class="flex flex-col gap-4">
-                        <a href="#" class="text-[#013C7B] font-bold text-center uppercase" @click="visibleMobileMenu = false">
-                            ACCESO EMPRESAS
-                        </a>
-                        <router-link to="/login" @click="visibleMobileMenu = false">
-                            <button class="w-full bg-[#E91E63] hover:bg-[#C2185B] text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-colors shadow-md">
-                                ACCESO CANDIDATOS
+                        <!-- Guest -->
+                        <template v-if="!isLoggedIn">
+                            <router-link :to="{ name: 'auth.login.empresa' }" @click="visibleMobileMenu = false">
+                                <button class="w-full border-2 border-[#013C7B] text-[#013C7B] hover:bg-[#013C7B] hover:text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-all duration-200">
+                                    ACCESO EMPRESAS
+                                </button>
+                            </router-link>
+                            <router-link to="/login" @click="visibleMobileMenu = false">
+                                <button class="w-full bg-[#E91E63] hover:bg-[#C2185B] text-white font-bold text-sm uppercase px-6 py-3 rounded-md transition-all duration-200 shadow-md hover:shadow-lg">
+                                    ACCESO CANDIDATOS
+                                </button>
+                            </router-link>
+                        </template>
+
+                        <!-- Logueado -->
+                        <template v-else>
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                <Avatar
+                                    :image="currentUser.avatar || undefined"
+                                    :label="!currentUser.avatar ? userInitials : undefined"
+                                    shape="circle" size="normal" class="w-10 h-10 shrink-0"
+                                />
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-900">{{ currentUser.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ userRoleLabel }}</p>
+                                </div>
+                            </div>
+                            <button v-for="menuItem in mobileMenuItems" :key="menuItem.label"
+                                @click="menuItem.command(); visibleMobileMenu = false"
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 text-left w-full text-sm font-medium"
+                                :class="menuItem.class">
+                                <i :class="menuItem.icon" class="w-4"></i>
+                                {{ menuItem.label }}
                             </button>
-                        </router-link>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -125,65 +166,99 @@ import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
+const auth = authStore();
 const menu = ref();
+const menuOpen = ref(false);
 const visibleMobileMenu = ref(false);
 const isScrolled = ref(false);
 const isDesktop = ref(window.innerWidth >= 992);
 
 const { logout } = useAuth();
 
-// Navigation Links matching the design
 const navLinks = [
-    { label: 'Ofertas', route: '#' },
-    { label: 'Proposito', route: '#' },
+    { label: 'Ofertas', route: '/ofertas' },
+    { label: 'Propósito', route: '#' },
     { label: 'Contacto', route: '#' }
 ];
 
-// Check if current page is Login or Register to hide nav links
-const isAuthPage = computed(() => {
-    return ['auth.login', 'auth.register', 'auth.forgot-password'].includes(route.name);
+const isAuthPage = computed(() =>
+    ['auth.login', 'auth.register', 'auth.forgot-password', 'auth.login.empresa'].includes(route.name)
+);
+
+const isLoggedIn = computed(() => !!auth.authenticated && !!auth.user?.id);
+const currentUser = computed(() => auth.user ?? {});
+
+const userInitials = computed(() => {
+    const name = currentUser.value?.name ?? '';
+    return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'U';
 });
 
-const items = computed(() => [
+const userRoleLabel = computed(() => {
+    const role = currentUser.value?.roles?.[0]?.name ?? '';
+    const map = { admin: 'Administrador', company: 'Empresa', candidate: 'Candidato' };
+    return map[role] ?? role;
+});
+
+const isAdmin   = computed(() => currentUser.value?.roles?.some(r => r.name?.toLowerCase().includes('admin')) ?? false);
+const isCompany = computed(() => currentUser.value?.roles?.some(r => r.name?.toLowerCase() === 'company') ?? false);
+
+const items = computed(() => [{
+    items: [
+        {
+            label: 'Mi Perfil',
+            icon: 'pi pi-user',
+            command: () => router.push(isCompany.value ? '/empresa/perfil' : '/app/profile')
+        },
+        {
+            label: 'Panel Admin',
+            icon: 'pi pi-shield',
+            visible: isAdmin.value,
+            command: () => router.push('/admin')
+        },
+        {
+            label: 'Panel Empresa',
+            icon: 'pi pi-building',
+            visible: isCompany.value && !isAdmin.value,
+            command: () => router.push('/empresa')
+        },
+        {
+            label: 'Mi Panel',
+            icon: 'pi pi-th-large',
+            visible: !isCompany.value && !isAdmin.value,
+            command: () => router.push('/app')
+        },
+        { separator: true },
+        {
+            label: 'Cerrar sesión',
+            icon: 'pi pi-power-off',
+            class: 'logout-item',
+            command: () => handleLogout()
+        }
+    ]
+}]);
+
+// Items planos para el menú mobile
+const mobileMenuItems = computed(() => [
     {
-        items: [
-            { label: 'Perfil', icon: 'pi pi-user', command: () => router.push('/app/profile') },
-            { 
-                label: 'Panel Admin', 
-                icon: 'pi pi-cog', 
-                route: '/admin', 
-                visible: authStore().user?.roles?.some(r => r.name.includes('admin')) || false
-            },
-            { label: 'Mi Panel', icon: 'pi pi-th-large', route: '/app' },
-            { separator: true },
-            {
-                label: 'Cerrar sesión',
-                icon: 'pi pi-power-off',
-                class: 'text-red-500',
-                command: () => {
-                    handleLogout()
-                }
-            }
-        ]
-    }
+        label: 'Mi Perfil',
+        icon: 'pi pi-user',
+        command: () => router.push(isCompany.value ? '/empresa/perfil' : '/app/profile')
+    },
+    ...(isAdmin.value ? [{ label: 'Panel Admin', icon: 'pi pi-shield', command: () => router.push('/admin') }] : []),
+    ...(isCompany.value && !isAdmin.value ? [{ label: 'Panel Empresa', icon: 'pi pi-building', command: () => router.push('/empresa') }] : []),
+    ...(!isCompany.value && !isAdmin.value ? [{ label: 'Mi Panel', icon: 'pi pi-th-large', command: () => router.push('/app') }] : []),
+    { label: 'Cerrar sesión', icon: 'pi pi-power-off', class: 'text-red-500', command: () => handleLogout() },
 ]);
 
-const toggle = (event) => {
-    menu.value.toggle(event);
-};
+const toggle = (event) => menu.value.toggle(event);
 
 const handleLogout = () => {
     visibleMobileMenu.value = false;
     logout();
-}
+};
 
-const handleScroll = () => {
-    isScrolled.value = window.scrollY > 20;
-}
-
-const handleResize = () => {
-    isDesktop.value = window.innerWidth >= 992;
-}
+const handleScroll = () => { isScrolled.value = window.scrollY > 20; };
+const handleResize = () => { isDesktop.value = window.innerWidth >= 992; };
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
@@ -195,4 +270,14 @@ onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
 });
 </script>
+
+<style scoped>
+:deep(.logout-item) {
+    color: #ef4444 !important;
+}
+:deep(.logout-item .p-menuitem-icon),
+:deep(.logout-item .p-menuitem-text) {
+    color: #ef4444 !important;
+}
+</style>
 

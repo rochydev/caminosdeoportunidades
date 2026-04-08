@@ -56,7 +56,7 @@
                     <div class="flex items-center justify-between mb-6">
                         <p class="text-sm text-gray-600">
                             <span v-if="!isLoading">
-                                <strong>{{ offers.meta?.total ?? offers.data?.length ?? 0 }}</strong> ofertas encontradas
+                                <strong>{{ offers.total ?? offers.data?.length ?? 0 }}</strong> ofertas encontradas
                             </span>
                             <Skeleton v-else width="12rem" height="1rem" />
                         </p>
@@ -64,7 +64,7 @@
 
                     <!-- Grid de ofertas -->
                     <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div v-for="n in 3" :key="n" class="bg-white rounded-xl p-5 border border-gray-200">
+                        <div v-for="n in 6" :key="n" class="bg-white rounded-xl p-5 border border-gray-200">
                         <Skeleton height="10rem" class="mb-3" />
                         </div>
                     </div>
@@ -130,17 +130,16 @@
                         <Button label="Ver todas las ofertas" class="mt-4" outlined @click="goToOffers" />
                     </div>
 
-                    <!-- Paginación -->
-                    <div v-if="offers.meta?.last_page > 1" class="flex justify-center mt-8 gap-2">
-                        <Button icon="pi pi-chevron-left" outlined size="small" :disabled="currentPage === 1"
-                            @click="goToPage(currentPage - 1)" />
-                        <Button v-for="p in pageNumbers" :key="p" :label="String(p)" size="small"
-                            :outlined="p !== currentPage"
-                            :style="p === currentPage ? 'background-color:#013C7B;border-color:#013C7B;' : ''"
-                            @click="goToPage(p)" />
-                        <Button icon="pi pi-chevron-right" outlined size="small"
-                            :disabled="currentPage === offers.meta?.last_page"
-                            @click="goToPage(currentPage + 1)" />
+                    <!-- Botón Mostrar más -->
+                    <div v-if="currentPage < offers.last_page" class="flex justify-center mt-8">
+                        <button
+                            @click="loadMoreOffers"
+                            class="inline-flex items-center gap-2 px-6 py-2 text-white font-bold rounded-md text-sm transition-colors cursor-pointer hover:opacity-90"
+                            style="background-color: #013C7B;"
+                        >
+                            <i class="pi pi-refresh"></i>
+                            MOSTRAR MÁS OFERTAS
+                        </button>
                     </div>
                 </div>
             </div>
@@ -322,7 +321,7 @@ const goToOffers = () => {
 };
 
 const pageNumbers = computed(() => {
-    const total = offers.value.meta?.last_page ?? 1
+    const total = offers.value.last_page ?? 1
     const current = currentPage.value
     const pages = []
     for (let i = Math.max(1, current - 2); i <= Math.min(total, current + 2); i++) pages.push(i)
@@ -340,14 +339,20 @@ const timeAgo = (dateStr) => {
     return `Hace ${Math.floor(days / 30)} meses`
 }
 
-const loadOffers = () => {
-    getOffers({ per_page: 6, page: currentPage.value })
+const loadOffers = async () => {
+    const result = await getOffers({ per_page: 3, page: currentPage.value })
+    if (currentPage.value === 1) {
+        offers.value.data = result.data
+    } else {
+        offers.value.data.push(...result.data)
+    }
+    offers.value.last_page = result.last_page
+    offers.value.total = result.total
 };
 
-const goToPage = (p) => {
-    currentPage.value = p
+const loadMoreOffers = () => {
+    currentPage.value += 1
     loadOffers()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 onMounted(() => {

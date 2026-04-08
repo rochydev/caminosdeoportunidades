@@ -48,39 +48,100 @@
         <section class="py-16 bg-white">
             <div class="container mx-auto px-6">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
-                    Impulsa tu carrera trabajando en una empresa líder
+                    Oportunidades laborales disponibles
                 </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div 
-                        v-for="empresa in empresas" 
-                        :key="empresa.id"
-                        class="rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                    >
-                        <div class="h-40 overflow-hidden">
-                            <img 
-                                :src="empresa.image" 
-                                :alt="empresa.name" 
-                                class="w-full h-full object-cover"
-                            />
+
+                <!-- Resultados -->
+                <div class="container mx-auto px-6 py-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <p class="text-sm text-gray-600">
+                            <span v-if="!isLoading">
+                                <strong>{{ offers.meta?.total ?? offers.data?.length ?? 0 }}</strong> ofertas encontradas
+                            </span>
+                            <Skeleton v-else width="12rem" height="1rem" />
+                        </p>
+                    </div>
+
+                    <!-- Grid de ofertas -->
+                    <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="n in 3" :key="n" class="bg-white rounded-xl p-5 border border-gray-200">
+                        <Skeleton height="10rem" class="mb-3" />
                         </div>
-                        <div class="p-4 flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">
-                                <i class="pi pi-building text-gray-400"></i>
+                    </div>
+
+                    <div v-else-if="offers.data?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="offer in offers.data" :key="offer.id"
+                            class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col">
+                            <!-- Cabecera -->
+                            <div class="flex items-start justify-between gap-2 mb-3">
+                                <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                                    <i class="pi pi-building text-gray-500"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-gray-900 text-sm leading-snug truncate">{{ offer.title }}</h3>
+                                    <p class="text-xs text-[#013C7B] font-medium mt-0.5">{{ offer.company?.name ?? 'Empresa' }}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="font-bold text-gray-900">{{ empresa.name }}</p>
-                                <p class="text-sm text-[#013C7B]">{{ empresa.ofertas }}</p>
+
+                            <!-- Detalles -->
+                            <div class="flex flex-wrap gap-1.5 mb-3">
+                                <span v-if="offer.city"
+                                    class="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                                    <i class="pi pi-map-marker text-xs"></i> {{ offer.city }}
+                                </span>
+                                <span v-if="offer.modality?.name"
+                                    class="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                                    <i class="pi pi-desktop text-xs"></i> {{ offer.modality.name }}
+                                </span>
+                                <span v-if="offer.contract_type?.name"
+                                    class="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                                    <i class="pi pi-file-edit text-xs"></i> {{ offer.contract_type.name }}
+                                </span>
+                                <span v-if="offer.is_adapted"
+                                    class="inline-flex items-center gap-1 text-xs text-white bg-green-500 px-2 py-0.5 rounded-full font-medium">
+                                    <i class="pi pi-check text-xs"></i> Adaptado
+                                </span>
+                            </div>
+
+                            <!-- Descripción -->
+                            <p class="text-xs text-gray-500 line-clamp-2 mb-4 flex-1">{{ offer.description }}</p>
+
+                            <!-- Categoría + Fecha + Botón -->
+                            <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                                <div>
+                                    <span v-if="offer.category?.name"
+                                        class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                        {{ offer.category.name }}
+                                    </span>
+                                    <p class="text-xs text-gray-400 mt-1">{{ timeAgo(offer.created_at) }}</p>
+                                </div>
+                                <router-link :to="{ name: 'ofertas.show', params: { id: offer.id } }">
+                                    <Button label="Ver oferta" size="small"
+                                        style="background-color:#013C7B;border-color:#013C7B;" />
+                                </router-link>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex justify-center mt-10">
-                    <button 
-                        class="flex items-center gap-2 px-8 py-3 border-2 border-gray-300 rounded-full text-gray-700 font-bold hover:border-[#013C7B] hover:text-[#013C7B] transition-colors"
-                    >
-                        <i class="pi pi-refresh"></i>
-                        MOSTRAR MÁS EMPRESAS
-                    </button>
+
+                    <div v-else class="text-center py-16 text-gray-400">
+                        <i class="pi pi-briefcase text-5xl mb-4 block"></i>
+                        <p class="text-lg font-medium text-gray-600">No se encontraron ofertas</p>
+                        <p class="text-sm mt-2">Prueba a cambiar los filtros de búsqueda</p>
+                        <Button label="Ver todas las ofertas" class="mt-4" outlined @click="goToOffers" />
+                    </div>
+
+                    <!-- Paginación -->
+                    <div v-if="offers.meta?.last_page > 1" class="flex justify-center mt-8 gap-2">
+                        <Button icon="pi pi-chevron-left" outlined size="small" :disabled="currentPage === 1"
+                            @click="goToPage(currentPage - 1)" />
+                        <Button v-for="p in pageNumbers" :key="p" :label="String(p)" size="small"
+                            :outlined="p !== currentPage"
+                            :style="p === currentPage ? 'background-color:#013C7B;border-color:#013C7B;' : ''"
+                            @click="goToPage(p)" />
+                        <Button icon="pi pi-chevron-right" outlined size="small"
+                            :disabled="currentPage === offers.meta?.last_page"
+                            @click="goToPage(currentPage + 1)" />
+                    </div>
                 </div>
             </div>
         </section>
@@ -242,13 +303,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { authStore } from "@/store/auth";
+import usePublicOffers from '@/composables/usePublicOffers';
 
 const router = useRouter();
 const searchKeyword = ref('');
 const searchCity = ref('');
+const { offers, isLoading, getOffers } = usePublicOffers();
+const currentPage = ref(1);
 
 const goToOffers = () => {
     const query = {};
@@ -257,14 +321,38 @@ const goToOffers = () => {
     router.push({ name: 'ofertas.index', query });
 };
 
-const empresas = ref([
-    { id: 1, name: 'Empresa 1', ofertas: '4 ofertas', image: '/images/imagen-placeholder-temporal.png' },
-    { id: 2, name: 'Empresa 2', ofertas: '437 ofertas', image: '/images/imagen-placeholder-temporal.png' },
-    { id: 3, name: 'Empresa 3', ofertas: '1 oferta', image: '/images/imagen-placeholder-temporal.png' },
-    { id: 4, name: 'Empresa 4', ofertas: '11 ofertas', image: '/images/imagen-placeholder-temporal.png' },
-    { id: 5, name: 'Empresa 5', ofertas: '7 ofertas', image: '/images/imagen-placeholder-temporal.png' },
-    { id: 6, name: 'Empresa 6', ofertas: '1 oferta', image: '/images/imagen-placeholder-temporal.png' },
-]);
+const pageNumbers = computed(() => {
+    const total = offers.value.meta?.last_page ?? 1
+    const current = currentPage.value
+    const pages = []
+    for (let i = Math.max(1, current - 2); i <= Math.min(total, current + 2); i++) pages.push(i)
+    return pages
+})
+
+const timeAgo = (dateStr) => {
+    if (!dateStr) return ''
+    const diff = Date.now() - new Date(dateStr)
+    const days = Math.floor(diff / 86400000)
+    if (days === 0) return 'Hoy'
+    if (days === 1) return 'Ayer'
+    if (days < 7) return `Hace ${days} días`
+    if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`
+    return `Hace ${Math.floor(days / 30)} meses`
+}
+
+const loadOffers = () => {
+    getOffers({ per_page: 6, page: currentPage.value })
+};
+
+const goToPage = (p) => {
+    currentPage.value = p
+    loadOffers()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+onMounted(() => {
+    loadOffers();
+});
 
 const sectores = ref([
     { name: 'Informática', count: '2.706', image: '/images/imagen-placeholder-temporal.png' },

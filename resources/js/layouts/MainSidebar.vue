@@ -121,6 +121,9 @@ const menuModel = computed(() => {
             label: 'Gestión',
             items: [
                 { label: 'Usuarios', icon: 'pi pi-users', route: '/admin/users', permission: 'user-list' },
+                { label: 'Empresas', icon: 'pi pi-building', route: '/admin/companies' },
+                { label: 'Ofertas', icon: 'pi pi-briefcase', route: '/admin/offers' },
+                { label: 'Candidaturas', icon: 'pi pi-send', route: '/admin/applications' },
                 { label: 'Roles', icon: 'pi pi-shield', route: '/admin/roles', permission: 'role-list' },
                 { label: 'Permisos', icon: 'pi pi-key', route: '/admin/permissions', permission: 'permission-list' }
             ]

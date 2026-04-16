@@ -289,6 +289,57 @@ export default [
             },
 
             {
+                name: 'admin.companies',
+                path: 'companies',
+                meta: { breadCrumb: 'Empresas' },
+                children: [
+                    {
+                        name: 'admin.companies.index',
+                        path: '',
+                        component: () => import('../views/admin/companies/Index.vue'),
+                        meta: {
+                            breadCrumb: 'Empresas',
+                            hideBreadcrumb: true
+                        }
+                    },
+                ]
+            },
+
+            {
+                name: 'admin.offers',
+                path: 'offers',
+                meta: { breadCrumb: 'Ofertas' },
+                children: [
+                    {
+                        name: 'admin.offers.index',
+                        path: '',
+                        component: () => import('../views/admin/offers/Index.vue'),
+                        meta: {
+                            breadCrumb: 'Ofertas',
+                            hideBreadcrumb: true
+                        }
+                    },
+                ]
+            },
+
+            {
+                name: 'admin.applications',
+                path: 'applications',
+                meta: { breadCrumb: 'Candidaturas' },
+                children: [
+                    {
+                        name: 'admin.applications.index',
+                        path: '',
+                        component: () => import('../views/admin/applications/Index.vue'),
+                        meta: {
+                            breadCrumb: 'Candidaturas',
+                            hideBreadcrumb: true
+                        }
+                    },
+                ]
+            },
+
+            {
                 name: 'roles',
                 path: 'roles',
                 meta: { breadCrumb: 'Roles' },

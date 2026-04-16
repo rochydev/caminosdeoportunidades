@@ -10,7 +10,7 @@
                             Dashboard
                         </h1>
                         <p class="page-description">
-                            Bienvenido al panel de administración. Desde aquí puedes gestionar usuarios, posts, categorías y más.
+                            Bienvenido al panel de administración. Desde aquí puedes gestionar usuarios, empresas, ofertas y candidaturas.
                         </p>
                     </div>
                 </div>
@@ -28,6 +28,21 @@
                         <div class="stat-card-info">
                             <p class="stat-card-label">Usuarios</p>
                             <p class="stat-card-value">{{ stats.users || 0 }}</p>
+                            <p class="stat-card-detail">{{ stats.candidates || 0 }} candidatos</p>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card class="dashboard-stat-card">
+                <template #content>
+                    <div class="stat-card-content">
+                        <div class="stat-card-icon stat-icon-info">
+                            <i class="pi pi-building"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <p class="stat-card-label">Empresas</p>
+                            <p class="stat-card-value">{{ stats.companies || 0 }}</p>
                         </div>
                     </div>
                 </template>
@@ -37,25 +52,12 @@
                 <template #content>
                     <div class="stat-card-content">
                         <div class="stat-card-icon stat-icon-success">
-                            <i class="pi pi-file"></i>
+                            <i class="pi pi-briefcase"></i>
                         </div>
                         <div class="stat-card-info">
-                            <p class="stat-card-label">Posts</p>
-                            <p class="stat-card-value">{{ stats.posts || 0 }}</p>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="dashboard-stat-card">
-                <template #content>
-                    <div class="stat-card-content">
-                        <div class="stat-card-icon stat-icon-success">
-                            <i class="pi pi-tags"></i>
-                        </div>
-                        <div class="stat-card-info">
-                            <p class="stat-card-label">Categorías</p>
-                            <p class="stat-card-value">{{ stats.categories || 0 }}</p>
+                            <p class="stat-card-label">Ofertas</p>
+                            <p class="stat-card-value">{{ stats.offers || 0 }}</p>
+                            <p class="stat-card-detail">{{ stats.offers_published || 0 }} publicadas</p>
                         </div>
                     </div>
                 </template>
@@ -65,11 +67,12 @@
                 <template #content>
                     <div class="stat-card-content">
                         <div class="stat-card-icon stat-icon-warning">
-                            <i class="pi pi-shield"></i>
+                            <i class="pi pi-send"></i>
                         </div>
                         <div class="stat-card-info">
-                            <p class="stat-card-label">Roles</p>
-                            <p class="stat-card-value">{{ stats.roles || 0 }}</p>
+                            <p class="stat-card-label">Candidaturas</p>
+                            <p class="stat-card-value">{{ stats.applications || 0 }}</p>
+                            <p class="stat-card-detail">{{ stats.applications_accepted || 0 }} aceptadas</p>
                         </div>
                     </div>
                 </template>
@@ -100,15 +103,43 @@
                         </router-link>
 
                         <router-link
-                            to="/admin/posts"
+                            to="/admin/companies"
+                            class="dashboard-action-item"
+                        >
+                            <div class="dashboard-action-icon stat-icon-info">
+                                <i class="pi pi-building"></i>
+                            </div>
+                            <div class="dashboard-action-info">
+                                <p class="dashboard-action-title">Gestionar Empresas</p>
+                                <p class="dashboard-action-description">Validar y moderar empresas</p>
+                            </div>
+                            <i class="pi pi-chevron-right dashboard-action-arrow"></i>
+                        </router-link>
+
+                        <router-link
+                            to="/admin/offers"
                             class="dashboard-action-item"
                         >
                             <div class="dashboard-action-icon stat-icon-success">
-                                <i class="pi pi-file"></i>
+                                <i class="pi pi-briefcase"></i>
                             </div>
                             <div class="dashboard-action-info">
-                                <p class="dashboard-action-title">Gestionar Posts</p>
-                                <p class="dashboard-action-description">Ver y editar posts</p>
+                                <p class="dashboard-action-title">Gestionar Ofertas</p>
+                                <p class="dashboard-action-description">Moderar ofertas de empleo</p>
+                            </div>
+                            <i class="pi pi-chevron-right dashboard-action-arrow"></i>
+                        </router-link>
+
+                        <router-link
+                            to="/admin/applications"
+                            class="dashboard-action-item"
+                        >
+                            <div class="dashboard-action-icon stat-icon-warning">
+                                <i class="pi pi-send"></i>
+                            </div>
+                            <div class="dashboard-action-info">
+                                <p class="dashboard-action-title">Gestionar Candidaturas</p>
+                                <p class="dashboard-action-description">Ver candidaturas del sistema</p>
                             </div>
                             <i class="pi pi-chevron-right dashboard-action-arrow"></i>
                         </router-link>
@@ -131,26 +162,12 @@
                             to="/admin/roles"
                             class="dashboard-action-item"
                         >
-                            <div class="dashboard-action-icon stat-icon-warning">
+                            <div class="dashboard-action-icon stat-icon-danger">
                                 <i class="pi pi-shield"></i>
                             </div>
                             <div class="dashboard-action-info">
                                 <p class="dashboard-action-title">Gestionar Roles</p>
                                 <p class="dashboard-action-description">Ver y editar roles</p>
-                            </div>
-                            <i class="pi pi-chevron-right dashboard-action-arrow"></i>
-                        </router-link>
-
-                        <router-link
-                            to="/admin/permissions"
-                            class="dashboard-action-item"
-                        >
-                            <div class="dashboard-action-icon stat-icon-danger">
-                                <i class="pi pi-key"></i>
-                            </div>
-                            <div class="dashboard-action-info">
-                                <p class="dashboard-action-title">Gestionar Permisos</p>
-                                <p class="dashboard-action-description">Ver y editar permisos</p>
                             </div>
                             <i class="pi pi-chevron-right dashboard-action-arrow"></i>
                         </router-link>
@@ -163,45 +180,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import useUsers from "../../composables/users";
-import usePosts from "../../composables/posts";
-import useCategories from "../../composables/categories";
-import useRoles from "../../composables/roles";
+import useAdminStats from "../../composables/useAdminStats";
 
-const stats = ref({
-    users: 0,
-    posts: 0,
-    categories: 0,
-    roles: 0
-});
-
-const { users, getUsers } = useUsers();
-const { posts, getPosts } = usePosts();
-const { categories, getCategories } = useCategories();
-const { roles, getRoles } = useRoles();
-
-const loadStats = async () => {
-    try {
-        await Promise.all([
-            getUsers(),
-            getPosts(),
-            getCategories(),
-            getRoles()
-        ]);
-        
-        stats.value = {
-            users: users.value?.total || users.value?.data?.length || 0,
-            posts: posts.value?.total || posts.value?.data?.length || 0,
-            categories: categories.value?.total || categories.value?.data?.length || 0,
-            roles: roles.value?.total || roles.value?.data?.length || 0
-        };
-    } catch (error) {
-        console.error('Error loading stats:', error);
-    }
-};
+const { stats, getStats } = useAdminStats();
 
 onMounted(() => {
-    loadStats();
+    getStats();
 });
 </script>
 
@@ -322,6 +306,16 @@ onMounted(() => {
 .dashboard-action-item:hover .dashboard-action-arrow {
     opacity: 1;
     transform: translateX(4px);
+}
+
+.stat-card-detail {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-top: 0.125rem;
+}
+
+.stat-icon-info {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 @media (max-width: 640px) {

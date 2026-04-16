@@ -7,9 +7,9 @@
                 <div>
                     <h4 class="font-bold text-sm text-gray-900 mb-3">Misión y valores</h4>
                     <ul class="space-y-1.5">
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">Ofertas</a></li>
                         <li><a href="#" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">Quienes somos</a></li>
                         <li><a href="#" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">Valores</a></li>
-                        <li><a href="#" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">Lorem Ipsum</a></li>
                     </ul>
                 </div>
 
@@ -26,6 +26,11 @@
                 <!-- Contacta -->
                 <div>
                     <h4 class="font-bold text-sm text-gray-900 mb-3">Contacta</h4>
+                    <ul class="space-y-1.5">
+                        <li><a href="mailto:contacto@oportunidades.com" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">contacto@oportunidades.com</a></li>
+                        <li><a href="tel:+34660770075" class="text-sm text-gray-500 hover:text-[#013C7B] transition-colors">+34 660 77 00 75</a></li>
+                        <li class="text-sm text-gray-500">Carrer Sra. de Lourdes, 34, 08750</li>
+                    </ul>
                 </div>
 
                 <!-- Información legal -->

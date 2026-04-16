@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\CandidateCvController;
 use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CategoryController;
@@ -45,6 +46,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('job-offers', JobOfferController::class);
     Route::apiResource('job-applications', JobApplicationController::class);
+
+    // Admin endpoints
+    Route::prefix('admin')->group(function () {
+        Route::get('stats', [AdminController::class, 'stats']);
+        Route::get('companies', [AdminController::class, 'companies']);
+        Route::get('companies/{userId}', [AdminController::class, 'companyShow']);
+        Route::put('companies/{userId}/status', [AdminController::class, 'companyUpdateStatus']);
+        Route::get('offers', [AdminController::class, 'offers']);
+        Route::put('offers/{offer}/status', [AdminController::class, 'offerUpdateStatus']);
+        Route::delete('offers/{offer}', [AdminController::class, 'offerDestroy']);
+        Route::get('applications', [AdminController::class, 'applications']);
+        Route::put('applications/{application}/status', [AdminController::class, 'applicationUpdateStatus']);
+    });
 
     Route::get('abilities', function (Request $request) {
         return $request->user()->roles()->with('permissions')

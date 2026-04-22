@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class JobOffer extends Model
+class JobOffer extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $table = 'job_offer';
 
     protected $fillable = [
@@ -22,6 +26,21 @@ class JobOffer extends Model
         'is_adapted',
         'status'
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        $media = $this->getFirstMedia('offer-images');
+        return $media ? $media->getUrl() : null;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('offer-images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            ->singleFile();
+    }
 
     public function company()
     {

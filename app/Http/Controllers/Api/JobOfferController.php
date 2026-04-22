@@ -10,7 +10,7 @@ class JobOfferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality']);
+        $query = JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality', 'media']);
 
         if ($request->has('city')) {
             $query->where('city', 'like', '%' . $request->city . '%');
@@ -66,7 +66,7 @@ class JobOfferController extends Controller
 
     public function show(JobOffer $jobOffer)
     {
-        $jobOffer->load(['company', 'category', 'contractType', 'workdayType', 'modality', 'tags', 'disabilities']);
+        $jobOffer->load(['company', 'category', 'contractType', 'workdayType', 'modality', 'tags', 'disabilities', 'media']);
 
         return response()->json([
             'success' => true,
@@ -88,11 +88,21 @@ class JobOfferController extends Controller
             'city' => ['nullable', 'string', 'max:120'],
             'is_adapted' => ['nullable', 'boolean'],
             'status' => ['nullable', 'in:DRAFT,PUBLISHED,CLOSED'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
+
+        $imageFile = $request->file('image');
+        unset($data['image']);
 
         $data['company_user_id'] = auth()->id();
 
         $offer = JobOffer::create($data);
+
+        if ($imageFile) {
+            $offer->addMedia($imageFile)->toMediaCollection('offer-images');
+        }
+
+        $offer->load(['company', 'category', 'contractType', 'workdayType', 'modality', 'media']);
 
         return response()->json([
             'success' => true,
@@ -114,13 +124,51 @@ class JobOfferController extends Controller
             'city' => ['nullable', 'string', 'max:120'],
             'is_adapted' => ['nullable', 'boolean'],
             'status' => ['nullable', 'in:DRAFT,PUBLISHED,CLOSED'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
 
+        $imageFile = $request->file('image');
+        unset($data['image']);
+
         $jobOffer->update($data);
+
+        if ($imageFile) {
+            $jobOffer->clearMediaCollection('offer-images');
+            $jobOffer->addMedia($imageFile)->toMediaCollection('offer-images');
+        }
+
+        $jobOffer->load(['company', 'category', 'contractType', 'workdayType', 'modality', 'media']);
 
         return response()->json([
             'success' => true,
             'data' => $jobOffer
+        ]);
+    }
+
+    public function uploadImage(Request $request, JobOffer $jobOffer)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
+        ]);
+
+        $jobOffer->clearMediaCollection('offer-images');
+        $jobOffer->addMediaFromRequest('image')->toMediaCollection('offer-images');
+
+        $jobOffer->load(['company', 'category', 'contractType', 'workdayType', 'modality', 'media']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $jobOffer
+        ]);
+    }
+
+    public function deleteImage(JobOffer $jobOffer)
+    {
+        $jobOffer->clearMediaCollection('offer-images');
+
+        return response()->json([
+            'success' => true,
+            'data' => $jobOffer->fresh()
         ]);
     }
 
@@ -145,7 +193,7 @@ class JobOfferController extends Controller
             ->toArray();
 
         // Construir consulta base
-        $query = JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality'])
+        $query = JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality', 'media'])
             ->where('status', 'PUBLISHED')
             ->whereNotIn('id', $appliedOfferIds);
 
@@ -169,6 +217,7 @@ class JobOfferController extends Controller
                 'city' => $offer->city,
                 'status' => $offer->status,
                 'salary' => $offer->salary ?? null,
+                'image_url' => $offer->image_url,
                 'company' => $offer->company,
                 'category' => $offer->category,
                 'contractType' => $offer->contractType,

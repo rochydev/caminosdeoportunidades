@@ -92,6 +92,11 @@ export default [
                 name: 'ofertas.show',
                 component: () => import('../views/public/ofertas/show.vue'),
             },
+            {
+                path: 'contacto',
+                name: 'contacto',
+                component: () => import('../views/contact/index.vue'),
+            },
 
             {
                 path: 'login',

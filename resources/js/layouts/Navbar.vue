@@ -178,7 +178,7 @@ const { logout } = useAuth();
 const navLinks = [
     { label: 'Ofertas', route: '/ofertas' },
     { label: 'Propósito', route: '#' },
-    { label: 'Contacto', route: '#' }
+    { label: 'Contacto', route: '/contacto' }
 ];
 
 const isAuthPage = computed(() =>

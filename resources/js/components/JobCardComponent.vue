@@ -1,11 +1,17 @@
 <template>
   <div class="rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer bg-white">
-    <!-- Company Image -->
+    <!-- Offer / Company Image -->
     <div class="h-32 overflow-hidden bg-gray-100">
-      <img 
-        v-if="job?.company?.avatar" 
-        :src="job.company.avatar" 
-        :alt="job.company.name" 
+      <img
+        v-if="offerImage"
+        :src="offerImage"
+        :alt="job?.title"
+        class="w-full h-full object-cover"
+      />
+      <img
+        v-else-if="job?.company?.avatar"
+        :src="job.company.avatar"
+        :alt="job.company.name"
         class="w-full h-full object-cover"
       />
       <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
@@ -65,7 +71,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   job: {
     type: Object,
     default: () => ({})
@@ -77,6 +85,13 @@ defineProps({
 })
 
 defineEmits(['apply'])
+
+const offerImage = computed(() => {
+  return props.job?.image_url
+    ?? props.job?.media?.[0]?.original_url
+    ?? props.job?.media?.[0]?.url
+    ?? null
+})
 
 const formatStatus = (status) => {
   const statusMap = {

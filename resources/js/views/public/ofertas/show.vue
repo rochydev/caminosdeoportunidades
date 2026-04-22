@@ -25,11 +25,17 @@
 
                 <!-- Columna principal -->
                 <div class="lg:col-span-2 flex flex-col gap-4">
+                    <!-- Imagen destacada -->
+                    <div v-if="offerImage" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <img :src="offerImage" :alt="offer.title" class="w-full h-64 object-cover" />
+                    </div>
+
                     <!-- Cabecera oferta -->
                     <div class="bg-white rounded-xl border border-gray-200 p-6">
                         <div class="flex items-start gap-4">
-                            <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-                                <i class="pi pi-building text-2xl text-gray-400"></i>
+                            <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                <img v-if="offerImage" :src="offerImage" :alt="offer.title" class="w-full h-full object-cover" />
+                                <i v-else class="pi pi-building text-2xl text-gray-400"></i>
                             </div>
                             <div class="flex-1">
                                 <h1 class="text-xl font-bold text-gray-900 leading-snug">{{ offer.title }}</h1>
@@ -186,6 +192,10 @@ const applyLoading = ref(false)
 const isAuthenticated = computed(() => !!auth.authenticated && !!auth.user?.id)
 const isCompany = computed(() => auth.user?.roles?.some(r => r.name === 'company') ?? false)
 const myApplication = computed(() => getApplicationForOffer(Number(route.params.id)))
+const offerImage = computed(() => offer.value?.image_url
+    ?? offer.value?.media?.[0]?.original_url
+    ?? offer.value?.media?.[0]?.url
+    ?? null)
 
 const appStatusOptions = [
     { label: 'Enviada', value: 'SENT', severity: 'info' },

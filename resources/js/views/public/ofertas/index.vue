@@ -66,7 +66,14 @@
 
             <div v-else-if="offers.data?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div v-for="offer in offers.data" :key="offer.id"
-                    class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col">
+                    class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col">
+                    <!-- Imagen -->
+                    <div class="h-36 bg-gray-100 overflow-hidden flex items-center justify-center">
+                        <img v-if="getOfferImage(offer)" :src="getOfferImage(offer)" :alt="offer.title" class="w-full h-full object-cover" />
+                        <i v-else class="pi pi-image text-gray-300 text-3xl"></i>
+                    </div>
+
+                    <div class="p-5 flex flex-col flex-1">
                     <!-- Cabecera -->
                     <div class="flex items-start justify-between gap-2 mb-3">
                         <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
@@ -114,6 +121,7 @@
                             <Button label="Ver oferta" size="small"
                                 style="background-color:#013C7B;border-color:#013C7B;" />
                         </router-link>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -180,6 +188,13 @@ const pageNumbers = computed(() => {
     for (let i = Math.max(1, current - 2); i <= Math.min(total, current + 2); i++) pages.push(i)
     return pages
 })
+
+const getOfferImage = (offer) => {
+    return offer?.image_url
+        ?? offer?.media?.[0]?.original_url
+        ?? offer?.media?.[0]?.url
+        ?? null
+}
 
 const timeAgo = (dateStr) => {
     if (!dateStr) return ''

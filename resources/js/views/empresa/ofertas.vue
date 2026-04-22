@@ -50,6 +50,15 @@
                         </div>
                     </template>
 
+                    <Column header="" class="w-[70px]">
+                        <template #body="{ data }">
+                            <div class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                                <img v-if="data.image_url" :src="data.image_url" :alt="data.title" class="w-full h-full object-cover" />
+                                <i v-else class="pi pi-image text-gray-300"></i>
+                            </div>
+                        </template>
+                    </Column>
+
                     <Column field="title" header="Título" sortable class="min-w-[200px]">
                         <template #body="{ data }">
                             <span class="font-medium">{{ data.title }}</span>
@@ -104,6 +113,25 @@
         <Dialog v-model:visible="dialogVisible" :header="editMode ? 'Editar Oferta' : 'Nueva Oferta'"
             :style="{ width: '720px' }" :modal="true" :closable="true">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <!-- Imagen -->
+                <div class="col-span-2 flex flex-col gap-2">
+                    <label class="font-medium text-sm">Imagen de la oferta</label>
+                    <div class="flex items-start gap-4">
+                        <div class="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
+                            <img v-if="imagePreview" :src="imagePreview" alt="Preview" class="w-full h-full object-cover" />
+                            <i v-else class="pi pi-image text-gray-300 text-3xl"></i>
+                        </div>
+                        <div class="flex-1 flex flex-col gap-2">
+                            <input ref="imageInputRef" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" @change="handleImageChange" />
+                            <div class="flex gap-2 flex-wrap">
+                                <Button :label="imagePreview ? 'Cambiar imagen' : 'Seleccionar imagen'" icon="pi pi-upload" size="small" outlined severity="secondary" @click="imageInputRef?.click()" />
+                                <Button v-if="imagePreview" label="Quitar" icon="pi pi-times" size="small" text severity="danger" @click="clearImage" />
+                            </div>
+                            <small class="text-gray-500">JPG, PNG, WebP o GIF. Máximo 5MB.</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Título -->
                 <div class="col-span-2 flex flex-col gap-1">
                     <label class="font-medium text-sm">Título <span class="text-red-500">*</span></label>
@@ -200,6 +228,8 @@ const { offers, offer, isLoading, resetOffer, setOffer, getOffers, createOffer, 
 const dialogVisible = ref(false)
 const editMode = ref(false)
 const filterStatus = ref(null)
+const imageInputRef = ref(null)
+const imagePreview = ref(null)
 
 const jobCategories = ref([])
 const contractTypes = ref([])
@@ -243,13 +273,32 @@ const openCreate = () => {
     offer.value.company_user_id = auth.user.id
     offer.value.status = 'DRAFT'
     editMode.value = false
+    imagePreview.value = null
+    if (imageInputRef.value) imageInputRef.value.value = ''
     dialogVisible.value = true
 }
 
 const openEdit = (data) => {
     setOffer(data)
     editMode.value = true
+    imagePreview.value = data.image_url ?? null
+    if (imageInputRef.value) imageInputRef.value.value = ''
     dialogVisible.value = true
+}
+
+const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    offer.value.image = file
+    const reader = new FileReader()
+    reader.onload = (e) => { imagePreview.value = e.target.result }
+    reader.readAsDataURL(file)
+}
+
+const clearImage = () => {
+    offer.value.image = null
+    imagePreview.value = null
+    if (imageInputRef.value) imageInputRef.value.value = ''
 }
 
 const handleSave = async () => {

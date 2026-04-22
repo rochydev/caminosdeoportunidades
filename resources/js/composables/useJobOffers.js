@@ -23,7 +23,9 @@ export default function useJobOffers() {
             adaptations: '',
             city: '',
             is_adapted: false,
-            status: 'DRAFT'
+            status: 'DRAFT',
+            image: null,
+            image_url: null
         }
     }
 
@@ -43,8 +45,26 @@ export default function useJobOffers() {
             adaptations: data.adaptations ?? '',
             city: data.city ?? '',
             is_adapted: data.is_adapted ?? false,
-            status: data.status ?? 'DRAFT'
+            status: data.status ?? 'DRAFT',
+            image: null,
+            image_url: data.image_url ?? null
         }
+    }
+
+    const buildFormData = (payload) => {
+        const formData = new FormData()
+        Object.entries(payload).forEach(([key, value]) => {
+            if (key === 'image_url') return
+            if (value === null || value === undefined || value === '') return
+            if (key === 'image' && value instanceof File) {
+                formData.append('image', value)
+            } else if (key === 'is_adapted') {
+                formData.append(key, value ? 1 : 0)
+            } else {
+                formData.append(key, value)
+            }
+        })
+        return formData
     }
 
     const getOffers = async (params = {}) => {
@@ -68,7 +88,10 @@ export default function useJobOffers() {
         }
         isLoading.value = true
         try {
-            const response = await axios.post('/api/job-offers', offer.value)
+            const hasFile = offer.value.image instanceof File
+            const config = hasFile ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}
+            const payload = hasFile ? buildFormData(offer.value) : offer.value
+            const response = await axios.post('/api/job-offers', payload, config)
             const data = response.data?.data ?? response.data
             toast.crud.created('Oferta')
             return data
@@ -87,7 +110,18 @@ export default function useJobOffers() {
         }
         isLoading.value = true
         try {
-            const response = await axios.put(`/api/job-offers/${offer.value.id}`, offer.value)
+            const hasFile = offer.value.image instanceof File
+            let response
+            if (hasFile) {
+                // Con FormData Laravel no procesa PUT multipart, usamos POST con _method=PUT
+                const formData = buildFormData(offer.value)
+                formData.append('_method', 'PUT')
+                response = await axios.post(`/api/job-offers/${offer.value.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                })
+            } else {
+                response = await axios.put(`/api/job-offers/${offer.value.id}`, offer.value)
+            }
             const data = response.data?.data ?? response.data
             toast.crud.updated('Oferta')
             return data
@@ -96,6 +130,32 @@ export default function useJobOffers() {
             return null
         } finally {
             isLoading.value = false
+        }
+    }
+
+    const uploadOfferImage = async (offerId, file) => {
+        try {
+            const formData = new FormData()
+            formData.append('image', file)
+            const response = await axios.post(`/api/job-offers/${offerId}/image`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+            toast.success('Imagen actualizada', 'La imagen de la oferta se ha subido correctamente')
+            return response.data?.data
+        } catch (error) {
+            toast.error('Error', error.response?.data?.message ?? 'No se pudo subir la imagen')
+            return null
+        }
+    }
+
+    const deleteOfferImage = async (offerId) => {
+        try {
+            await axios.delete(`/api/job-offers/${offerId}/image`)
+            toast.success('Imagen eliminada', 'La imagen de la oferta se ha eliminado')
+            return true
+        } catch {
+            toast.error('Error', 'No se pudo eliminar la imagen')
+            return false
         }
     }
 
@@ -137,6 +197,8 @@ export default function useJobOffers() {
         getOffers,
         createOffer,
         updateOffer,
+        uploadOfferImage,
+        deleteOfferImage,
         deleteOffer
     }
 }

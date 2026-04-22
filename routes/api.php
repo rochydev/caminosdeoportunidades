@@ -44,6 +44,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('cv-educations/{education}', [CandidateCvController::class, 'destroyEducation']);
 
     Route::apiResource('job-offers', JobOfferController::class);
+    Route::post('job-offers/{jobOffer}/image', [JobOfferController::class, 'uploadImage']);
+    Route::delete('job-offers/{jobOffer}/image', [JobOfferController::class, 'deleteImage']);
     Route::apiResource('job-applications', JobApplicationController::class);
 
     Route::get('abilities', function (Request $request) {
@@ -60,7 +62,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 // Rutas públicas de ofertas (solo PUBLISHED)
 Route::get('public/job-offers', function (Request $request) {
-    $query = \App\Models\JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality'])
+    $query = \App\Models\JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality', 'media'])
         ->where('status', 'PUBLISHED');
 
     if ($request->filled('search')) {
@@ -78,7 +80,7 @@ Route::get('public/job-offers', function (Request $request) {
 });
 
 Route::get('public/job-offers/{id}', function ($id) {
-    $offer = \App\Models\JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality'])
+    $offer = \App\Models\JobOffer::with(['company', 'category', 'contractType', 'workdayType', 'modality', 'media'])
         ->findOrFail($id);
     return response()->json(['data' => $offer]);
 });

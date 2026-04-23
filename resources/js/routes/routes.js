@@ -93,9 +93,14 @@ export default [
                 component: () => import('../views/public/ofertas/show.vue'),
             },
             {
+                path: 'proposito',
+                name: 'proposito',
+                component: () => import('../views/public/proposito/index.vue'),
+            },
+            {
                 path: 'contacto',
                 name: 'contacto',
-                component: () => import('../views/contact/index.vue'),
+                component: () => import('../views/public/contact/index.vue'),
             },
 
             {

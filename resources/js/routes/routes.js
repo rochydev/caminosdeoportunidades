@@ -202,7 +202,7 @@ export default [
             {
                 name: 'empresa.profile',
                 path: 'perfil',
-                component: () => import('../views/user/profile.vue'),
+                component: () => import('../views/empresa/profile.vue'),
                 meta: { breadCrumb: 'Perfil Empresa' }
             },
         ]

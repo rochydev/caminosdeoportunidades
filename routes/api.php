@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CandidateCvController;
 use App\Http\Controllers\Api\CandidateProfileController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CompanyProfileController;
 use App\Http\Controllers\Api\JobApplicationController;
 use App\Http\Controllers\Api\JobOfferController;
 use App\Http\Controllers\Api\PermissionController;
@@ -32,6 +33,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('/user', [ProfileController::class, 'update']);
 
     Route::apiResource('candidate-profiles', CandidateProfileController::class);
+
+    // Perfil de empresa
+    Route::get('company-profiles', [CompanyProfileController::class, 'index']);
+    Route::get('company-profiles/{userId}', [CompanyProfileController::class, 'show']);
+    Route::post('company-profiles', [CompanyProfileController::class, 'store']);
+    Route::put('company-profiles/{userId}', [CompanyProfileController::class, 'update']);
 
     // CV del candidato autenticado
     Route::get('candidate-cv', [CandidateCvController::class, 'show']);

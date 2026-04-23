@@ -100,7 +100,7 @@ export default [
             {
                 path: 'contacto',
                 name: 'contacto',
-                component: () => import('../views/public/contact/index.vue'),
+                component: () => import('../views/public/contacto/index.vue'),
             },
 
             {

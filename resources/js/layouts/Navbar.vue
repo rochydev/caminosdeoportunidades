@@ -177,7 +177,7 @@ const { logout } = useAuth();
 
 const navLinks = [
     { label: 'Ofertas', route: '/ofertas' },
-    { label: 'Propósito', route: '#' },
+    { label: 'Propósito', route: '/proposito' },
     { label: 'Contacto', route: '/contacto' }
 ];
 

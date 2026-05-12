@@ -8,6 +8,8 @@ class CvEducation extends Model
 {
     protected $table = 'cv_education';
 
+    public $timestamps = false;
+
     protected $fillable = ['cv_user_id', 'institution', 'degree', 'start_date', 'end_date', 'description'];
 
     public function cv()

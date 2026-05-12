@@ -8,6 +8,8 @@ class CvExperience extends Model
 {
     protected $table = 'cv_experience';
 
+    public $timestamps = false;
+
     protected $fillable = ['cv_user_id', 'company', 'position', 'start_date', 'end_date', 'description'];
 
     public function cv()

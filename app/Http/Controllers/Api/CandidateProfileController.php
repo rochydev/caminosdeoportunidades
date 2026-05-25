@@ -48,6 +48,11 @@ class CandidateProfileController extends Controller
 
     public function store(Request $request)
     {
+        // El perfil siempre se crea para el usuario autenticado (admin puede para otro).
+        if (! $request->user()->hasRole('admin')) {
+            $request->merge(['user_id' => $request->user()->id]);
+        }
+
         $data = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id', 'unique:candidate_profile,user_id'],
             'first_name' => ['required', 'string', 'max:80'],
@@ -70,6 +75,9 @@ class CandidateProfileController extends Controller
 
     public function update(Request $request, CandidateProfile $candidateProfile)
     {
+        // Un candidato solo puede editar SU propio perfil (admin cualquiera).
+        abort_if($candidateProfile->user_id !== $request->user()->id && ! $request->user()->hasRole('admin'), 403);
+
         $data = $request->validate([
             'first_name' => ['sometimes', 'string', 'max:80'],
             'last_name' => ['sometimes', 'string', 'max:120'],

@@ -52,6 +52,11 @@ class CompanyProfileController extends Controller
 
     public function store(Request $request)
     {
+        // El perfil siempre se crea para el usuario autenticado (admin puede para otro).
+        if (! $request->user()->hasRole('admin')) {
+            $request->merge(['user_id' => $request->user()->id]);
+        }
+
         $data = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id', 'unique:company_profile,user_id'],
             'company_name' => ['required', 'string', 'max:150'],
@@ -78,6 +83,9 @@ class CompanyProfileController extends Controller
 
     public function update(Request $request, $userId)
     {
+        // Una empresa solo puede editar SU propio perfil (admin cualquiera).
+        abort_if((int) $userId !== $request->user()->id && ! $request->user()->hasRole('admin'), 403);
+
         $profile = CompanyProfile::where('user_id', $userId)->firstOrFail();
 
         $data = $request->validate([

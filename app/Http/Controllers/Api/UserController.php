@@ -103,6 +103,11 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        // Solo el propio usuario, o un admin con permiso 'user-edit', puede editar.
+        if (auth()->id() !== $user->id && ! auth()->user()->can('user-edit')) {
+            abort(403, 'No autorizado para editar este usuario.');
+        }
+
         $role = Role::find($request->role_id);
 
         $user->name = $request->name;
@@ -114,7 +119,9 @@ class UserController extends Controller
             $user->password = Hash::make($request->password) ?? $user->password;
         }
         if ($user->save()) {
-            if ($role) {
+            // Solo un admin (con 'user-edit') puede cambiar roles; así un usuario
+            // editando su propio perfil no puede auto-ascenderse enviando role_id.
+            if ($role && auth()->user()->can('user-edit')) {
                 $user->syncRoles($role);
             }
 
@@ -125,6 +132,11 @@ class UserController extends Controller
 
     public function updateimg(Request $request)
     {
+        // Solo el propio usuario, o un admin con permiso 'user-edit', puede cambiar el avatar.
+        if ((int) $request->id !== auth()->id() && ! auth()->user()->can('user-edit')) {
+            abort(403, 'No autorizado.');
+        }
+
         $user = User::find($request->id);
 
         if($request->hasFile('picture')) {

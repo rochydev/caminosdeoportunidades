@@ -112,6 +112,9 @@ class JobOfferController extends Controller
 
     public function update(Request $request, JobOffer $jobOffer)
     {
+        // Una empresa solo puede editar SUS propias ofertas (admin cualquiera).
+        abort_if($jobOffer->company_user_id !== auth()->id() && ! auth()->user()->hasRole('admin'), 403);
+
         $data = $request->validate([
             'category_id' => ['nullable', 'integer', 'exists:job_category,id'],
             'contract_type_id' => ['nullable', 'integer', 'exists:contract_type,id'],
@@ -147,6 +150,8 @@ class JobOfferController extends Controller
 
     public function uploadImage(Request $request, JobOffer $jobOffer)
     {
+        abort_if($jobOffer->company_user_id !== auth()->id() && ! auth()->user()->hasRole('admin'), 403);
+
         $request->validate([
             'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
@@ -164,6 +169,8 @@ class JobOfferController extends Controller
 
     public function deleteImage(JobOffer $jobOffer)
     {
+        abort_if($jobOffer->company_user_id !== auth()->id() && ! auth()->user()->hasRole('admin'), 403);
+
         $jobOffer->clearMediaCollection('offer-images');
 
         return response()->json([
@@ -174,6 +181,9 @@ class JobOfferController extends Controller
 
     public function destroy(JobOffer $jobOffer)
     {
+        // Una empresa solo puede borrar SUS propias ofertas (admin cualquiera).
+        abort_if($jobOffer->company_user_id !== auth()->id() && ! auth()->user()->hasRole('admin'), 403);
+
         $jobOffer->delete();
 
         return response()->noContent();
@@ -181,7 +191,10 @@ class JobOfferController extends Controller
 
     public function recommended(Request $request)
     {
-        $candidateId = $request->input('candidate_id') ?? auth()->id();
+        // Un candidato solo ve SUS recomendaciones; un admin puede consultar las de otro.
+        $candidateId = $request->user()->hasRole('admin')
+            ? ($request->input('candidate_id') ?? auth()->id())
+            : auth()->id();
 
         // Obtener ofertas a las que ya ha aplicado
         $appliedOfferIds = \DB::table('application')

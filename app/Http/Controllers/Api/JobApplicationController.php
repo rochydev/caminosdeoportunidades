@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\JobOffer;
 use Illuminate\Http\Request;
 
 class JobApplicationController extends Controller
@@ -11,6 +12,17 @@ class JobApplicationController extends Controller
     public function index(Request $request)
     {
         $query = Application::with(['offer', 'candidate']);
+
+        // Cada uno solo ve lo suyo: el candidato sus candidaturas, la empresa
+        // las de sus propias ofertas, y el admin todas.
+        $user = $request->user();
+        if (! $user->hasRole('admin')) {
+            if ($user->hasRole('company')) {
+                $query->whereHas('offer', fn($q) => $q->where('company_user_id', $user->id));
+            } else {
+                $query->where('candidate_user_id', $user->id);
+            }
+        }
 
         if ($request->has('offer_id')) {
             $query->where('offer_id', $request->offer_id);
@@ -55,6 +67,11 @@ class JobApplicationController extends Controller
             'company_notes' => ['nullable', 'string'],
         ]);
 
+        // El candidato siempre es el usuario autenticado (evita postular en nombre de otro).
+        if (! $request->user()->hasRole('admin')) {
+            $data['candidate_user_id'] = $request->user()->id;
+        }
+
         $existing = Application::where('offer_id', $data['offer_id'])
             ->where('candidate_user_id', $data['candidate_user_id'])
             ->first();
@@ -76,6 +93,12 @@ class JobApplicationController extends Controller
 
     public function update(Request $request, Application $jobApplication)
     {
+        // Solo el candidato dueño, la empresa dueña de la oferta o un admin pueden modificarla.
+        $user = $request->user();
+        $esCandidatoDuenyo = $jobApplication->candidate_user_id === $user->id;
+        $esEmpresaDuenya = $jobApplication->offer?->company_user_id === $user->id;
+        abort_if(! $esCandidatoDuenyo && ! $esEmpresaDuenya && ! $user->hasRole('admin'), 403);
+
         $data = $request->validate([
             'status' => ['sometimes', 'in:SENT,IN_REVIEW,ACCEPTED,REJECTED,CANCELED'],
             'company_notes' => ['nullable', 'string'],
@@ -91,6 +114,10 @@ class JobApplicationController extends Controller
 
     public function byOffer(Request $request, $offerId)
     {
+        // Una empresa solo puede ver las candidaturas de SUS propias ofertas (admin todas).
+        $offer = JobOffer::findOrFail($offerId);
+        abort_if($offer->company_user_id !== $request->user()->id && ! $request->user()->hasRole('admin'), 403);
+
         $applications = Application::where('offer_id', $offerId)
             ->with([
                 'candidate' => function ($q) {
@@ -142,7 +169,10 @@ class JobApplicationController extends Controller
 
     public function myCandidatures(Request $request)
     {
-        $candidateId = $request->input('candidate_id') ?? auth()->id();
+        // Un candidato solo ve SUS candidaturas; un admin puede consultar las de otro.
+        $candidateId = $request->user()->hasRole('admin')
+            ? ($request->input('candidate_id') ?? auth()->id())
+            : auth()->id();
 
         $applications = Application::where('candidate_user_id', $candidateId)
             ->with([

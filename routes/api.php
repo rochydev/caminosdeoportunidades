@@ -121,7 +121,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::middleware('role:candidate|admin')->group(function () {
         Route::post('candidate-profiles', [CandidateProfileController::class, 'store']);
         Route::match(['put', 'patch'], 'candidate-profiles/{candidateProfile}', [CandidateProfileController::class, 'update']);
-        Route::delete('candidate-profiles/{candidateProfile}', [CandidateProfileController::class, 'destroy']);
     });
 
     /*
@@ -155,7 +154,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('job-applications/{jobApplication}', [JobApplicationController::class, 'show']);
     Route::post('job-applications', [JobApplicationController::class, 'store']);
     Route::match(['put', 'patch'], 'job-applications/{jobApplication}', [JobApplicationController::class, 'update']);
-    Route::delete('job-applications/{jobApplication}', [JobApplicationController::class, 'destroy'])->middleware('role:admin');
 });
 
 /*

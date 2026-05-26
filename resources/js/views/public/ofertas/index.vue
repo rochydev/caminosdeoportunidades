@@ -5,10 +5,23 @@
         <div class="bg-white border-b border-gray-200 py-8">
             <div class="container mx-auto px-6">
                 <h1 class="text-3xl font-bold text-gray-900 mb-6">Ofertas de empleo</h1>
-                <div class="flex flex-col md:flex-row gap-3">
-                    <div class="flex-1">
+                <div class="flex flex-col md:flex-row gap-3 relative">
+                    <div class="flex-1 relative">
                         <InputText v-model="filters.search" placeholder="Puesto, empresa o palabra clave"
-                            class="w-full" @keyup.enter="search" />
+                            class="w-full" @keyup.enter="search" @focus="showRecentSearches = true" />
+                        <!-- Dropdown búsquedas recientes -->
+                        <div v-if="showRecentSearches && searchHistoryStore.searches.length" 
+                            class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
+                            <div v-for="search in searchHistoryStore.searches" :key="search.id"
+                                class="p-3 border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition"
+                                @click="applyRecentSearch(search)">
+                                <div class="font-medium text-sm text-gray-900">
+                                    <span v-if="search.search" class="text-blue-600">{{ search.search }}</span>
+                                    <span v-if="search.search && search.city" class="text-gray-400"> · </span>
+                                    <span v-if="search.city" class="text-gray-600">{{ search.city }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="w-full md:w-48">
                         <InputText v-model="filters.city" placeholder="Ciudad" class="w-full" @keyup.enter="search" />
@@ -154,10 +167,13 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import usePublicOffers from '@/composables/usePublicOffers'
+import { useSearchHistoryStore } from '../../../store/searchHistory'
 
 const route = useRoute()
 const router = useRouter()
 const { offers, isLoading, getOffers } = usePublicOffers()
+const searchHistoryStore = useSearchHistoryStore()
+const showRecentSearches = ref(false)
 
 const jobCategories = ref([])
 const contractTypes = ref([])
@@ -211,6 +227,26 @@ const search = () => {
     currentPage.value = 1
     loadOffers()
     updateQueryParams()
+    if (filters.value.search) {
+        searchHistoryStore.addSearch(filters.value)
+    }
+    showRecentSearches.value = false
+}
+
+const applyRecentSearch = (recentSearch) => {
+    filters.value = {
+        search: recentSearch.search,
+        city: recentSearch.city,
+        category_id: recentSearch.category_id,
+        contract_type_id: recentSearch.contract_type_id,
+        modality_id: recentSearch.modality_id,
+        workday_type_id: recentSearch.workday_type_id,
+        is_adapted: recentSearch.is_adapted,
+    }
+    currentPage.value = 1
+    loadOffers()
+    updateQueryParams()
+    showRecentSearches.value = false
 }
 
 const clearFilters = () => {
@@ -261,6 +297,14 @@ onMounted(() => {
     if (route.query.city) filters.value.city = route.query.city
     loadOffers()
     loadLookups()
+
+    // Cerrar dropdown cuando se hace click afuera
+    document.addEventListener('click', (e) => {
+        const searchContainer = document.querySelector('.flex-1.relative')
+        if (searchContainer && !searchContainer.contains(e.target)) {
+            showRecentSearches.value = false
+        }
+    })
 })
 </script>
 
